@@ -1,0 +1,117 @@
+package one.spaceman.spiffywidget.worker
+
+import android.content.Context
+import android.location.Geocoder
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.updateAll
+import androidx.glance.GlanceId
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.appwidget.state.getAppWidgetState
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
+import com.google.android.gms.location.LocationServices
+import one.spaceman.spiffywidget.data.CalendarAdapter
+import one.spaceman.spiffywidget.data.SystemInfo
+import one.spaceman.spiffywidget.SpiffyWidget
+import one.spaceman.spiffywidget.data.AlarmAdapter
+import one.spaceman.spiffywidget.data.LocationAdapter
+import one.spaceman.spiffywidget.data.weather.WeatherAdapter
+import one.spaceman.spiffywidget.state.SpiffyWidgetState
+import one.spaceman.spiffywidget.state.SpiffyWidgetStateDefinition
+import one.spaceman.spiffywidget.worker.WidgetWorkManager.Companion.PartialUpdate
+
+internal class WidgetWorkTask(
+    private val context: Context,
+    workParams: WorkerParameters
+) : CoroutineWorker(context, workParams) {
+
+    companion object {
+        private const val MAXIMUM_RETRIES = 3
+        const val TAG = "spiffy-worker"
+    }
+
+    private val locationClient = LocationServices.getFusedLocationProviderClient(context)
+
+    override suspend fun doWork(): Result {
+        if (runAttemptCount >= MAXIMUM_RETRIES) return Result.failure()
+        val glanceIds = getGlanceIds()
+        val update =
+            inputData.getStringArray("partialUpdate")?.toList() ?: PartialUpdate.getStringArray()
+
+        return try {
+            var newState = if (update.contains("ALL")) {
+                SpiffyWidgetState()
+            } else {
+                getWidgetState(glanceIds)
+            }
+
+            val systemInfo = SystemInfo()
+            val location = LocationAdapter.get(context, locationClient)
+
+            if (location != null && location.isComplete) {
+                val geocode = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1)
+                if (!geocode.isNullOrEmpty()) {
+                    val city = geocode.first()
+                    newState = newState.copy(location = "${city.locality}, ${city.adminArea}")
+                }
+
+                if (update.contains("WEATHER")) {
+                    newState = newState.copy(
+                        weather = WeatherAdapter.getFormatedWeather(
+                            context = context,
+                            info = systemInfo,
+                            latitude = 37.4220936,
+                            longitude = -122.083922
+                        )
+                    )
+                }
+            }
+
+            if (update.contains("ALARM")) {
+                newState = newState.copy(
+                    alarm = AlarmAdapter.get(context, systemInfo)
+                )
+            }
+
+            if (update.contains("EVENTS")) {
+                newState = newState.copy(
+                    events = CalendarAdapter.get(context, systemInfo)
+                )
+            }
+
+            setWidgetState(glanceIds, newState)
+            Result.success()
+        } catch (e: Exception) {
+            setWidgetState(glanceIds, SpiffyWidgetState())
+            Result.retry()
+        }
+    }
+
+    private suspend fun getGlanceIds(): List<GlanceId> {
+        val manager = GlanceAppWidgetManager(context)
+        return manager.getGlanceIds(SpiffyWidget::class.java)
+    }
+
+    private suspend fun getWidgetState(glanceIds: List<GlanceId>): SpiffyWidgetState {
+        return getAppWidgetState(
+            context = context,
+            definition = SpiffyWidgetStateDefinition,
+            glanceId = glanceIds.first(),
+        )
+    }
+
+    private suspend fun setWidgetState(
+        glanceIds: List<GlanceId>,
+        newState: SpiffyWidgetState
+    ) {
+        glanceIds.forEach { glanceId ->
+            updateAppWidgetState(
+                context = context,
+                definition = SpiffyWidgetStateDefinition,
+                glanceId = glanceId,
+                updateState = { newState }
+            )
+        }
+        SpiffyWidget().updateAll(context)
+    }
+}
