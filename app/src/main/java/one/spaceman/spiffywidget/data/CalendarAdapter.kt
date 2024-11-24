@@ -168,10 +168,10 @@ object CalendarAdapter {
 
                 widgetEvents.add(
                     CalendarEvent(
-                        id = it.id,
+                        id = it.dtStart?.toEpochMilli() ?: info.now.epochSecond,
                         title = it.title.toString(),
                         date = dateString,
-                        color = /* it.displayColor ?: */ R.color.sky
+//                        color = it.displayColor
                     )
                 )
             }

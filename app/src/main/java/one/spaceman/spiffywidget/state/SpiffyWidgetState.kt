@@ -15,7 +15,7 @@ data class CalendarEvent(
     val id: Long,
     val title: String,
     val date: String,
-    val color: Int
+//    val color: Int
 )
 
 @Serializable

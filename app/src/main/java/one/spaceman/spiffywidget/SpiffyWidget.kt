@@ -2,8 +2,11 @@ package one.spaceman.spiffywidget
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.provideContent
@@ -12,6 +15,9 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.text.Text
+import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import one.spaceman.spiffywidget.components.DrawAlarm
 import one.spaceman.spiffywidget.components.DrawClock
 import one.spaceman.spiffywidget.components.DrawEvents
@@ -62,18 +68,25 @@ class SpiffyWidget : GlanceAppWidget() {
                     horizontalAlignment = Alignment.Start
                 ) {
                     DrawClock(context)
-                    DrawWeather(state.weather)
+                    DrawAlarm(context, state.alarm)
+                    DrawWeather(state.weather, state.location)
                     DrawEvents(context, state.events)
                 }
-
-                Column(
-                    modifier = GlanceModifier
-                        .fillMaxSize(),
-                    verticalAlignment = Alignment.Top,
-                    horizontalAlignment = Alignment.End
-                ) {
-                    DrawAlarm(context, state.alarm)
-                }
+            }
+            Box(
+                modifier = GlanceModifier.fillMaxSize(),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                Text(
+                    modifier = GlanceModifier.clickable{
+                        WidgetWorkManager(context).updateNow()
+                    },
+                    text = "● ",
+                    style = TextStyle(
+                        fontSize = 30.sp,
+                        color = ColorProvider(Color(0x0FFFFFFF))
+                    ),
+                )
             }
         }
     }

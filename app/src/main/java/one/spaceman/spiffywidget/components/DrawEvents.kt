@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.glance.action.clickable
 import androidx.glance.background
 import androidx.glance.text.Text
+import one.spaceman.spiffywidget.R
 import one.spaceman.spiffywidget.theme.DrawSpacer
 import one.spaceman.spiffywidget.state.CalendarEvent
 import one.spaceman.spiffywidget.theme.itemModifier
@@ -23,13 +24,13 @@ fun DrawEvents(
     events.forEach {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("content://com.android.calendar/events/${it.id}"))
+            Uri.parse("content://com.android.calendar/time/${it.id}"))
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         Text(
             text = "${it.title} ✧ ${it.date}",
             modifier = itemModifier
-                .background(it.color)
+                .background(R.color.sky)
                 .clickable {
                     context.startActivity(intent)
                 },
