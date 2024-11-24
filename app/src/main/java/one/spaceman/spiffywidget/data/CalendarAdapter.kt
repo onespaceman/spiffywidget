@@ -8,7 +8,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import one.spaceman.spiffywidget.R
 import one.spaceman.spiffywidget.state.CalendarEvent
 import java.time.Instant
 import java.time.LocalDateTime

@@ -27,7 +27,6 @@ import androidx.glance.text.Text
 import one.spaceman.spiffywidget.theme.DrawSpacer
 import one.spaceman.spiffywidget.R
 import one.spaceman.spiffywidget.state.Weather
-import one.spaceman.spiffywidget.theme.itemModifier
 import one.spaceman.spiffywidget.theme.textStyle
 
 @Composable
