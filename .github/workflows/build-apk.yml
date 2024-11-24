@@ -20,6 +20,9 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+
       - name: Decode Keystore
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE_BASE_64 }}
