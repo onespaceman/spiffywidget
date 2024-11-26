@@ -45,8 +45,13 @@ jobs:
         run: echo "apkfile=$(find app/build/outputs/apk/release/*.apk)" >> $GITHUB_OUTPUT
 
       - name: Upload Release Build to Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.repository_name }}
           path: ${{ steps.releaseApk.outputs.apkfile }}
           overwrite: ${{ true }}
+
+      - name: Create Release on Github
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.releaseApk.outputs.apkfile }}

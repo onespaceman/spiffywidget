@@ -60,7 +60,7 @@ object WeatherAdapter {
             parameter("temporal_resolution", "hourly_3")
             parameter("hourly", "temperature_2m,precipitation,weather_code,is_day")
             parameter("daily", "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum")
-            parameter("current", "is_day")
+            parameter("current", "is_day,apparent_temperature")
         }.body()
     }
 
@@ -107,6 +107,7 @@ object WeatherAdapter {
             }
 
             return Weather(
+                temperature = response.current.temperature.roundToInt(),
                 temperatureLow = response.daily.temperatureMin.first().roundToInt(),
                 temperatureHigh = response.daily.temperatureMax.first().roundToInt(),
                 extra = extra,

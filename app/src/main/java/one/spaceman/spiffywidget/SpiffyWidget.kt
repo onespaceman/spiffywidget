@@ -73,6 +73,7 @@ class SpiffyWidget : GlanceAppWidget() {
                     DrawEvents(context, state.events)
                 }
             }
+            // Secret update button
             Box(
                 modifier = GlanceModifier.fillMaxSize(),
                 contentAlignment = Alignment.TopEnd

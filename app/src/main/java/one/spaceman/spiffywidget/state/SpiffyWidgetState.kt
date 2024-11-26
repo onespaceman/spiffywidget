@@ -20,6 +20,7 @@ data class CalendarEvent(
 
 @Serializable
 data class Weather(
+    val temperature: Int,
     val temperatureLow: Int,
     val temperatureHigh: Int,
     val icon: Int,

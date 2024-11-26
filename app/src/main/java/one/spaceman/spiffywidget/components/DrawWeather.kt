@@ -51,7 +51,7 @@ fun DrawWeather(weather: Weather?, location: String?) {
                 Text(
                     text = location,
                     style = textStyle.copy(),
-                    modifier = GlanceModifier.wrapContentSize()
+                    modifier = GlanceModifier.wrapContentSize().padding(top = 10.dp)
                 )
             }
 
@@ -62,7 +62,7 @@ fun DrawWeather(weather: Weather?, location: String?) {
             ) {
                 weather.forecast.forEach {
                     Column(
-                        modifier = GlanceModifier.defaultWeight(),
+                        modifier = GlanceModifier.defaultWeight().padding(bottom = 10.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -95,10 +95,17 @@ fun DrawWeather(weather: Weather?, location: String?) {
                     contentDescription = weather.iconDescription,
                     contentScale = ContentScale.Fit
                 )
-                Column {
+                Text(
+                    text = "${weather.temperature}°",
+                    style = textStyle.copy(fontSize = 20.sp),
+                    modifier = GlanceModifier.padding(end = 10.dp)
+                )
+                Column (
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
                         text = "${weather.temperatureHigh}°",
-                        style = textStyle
+                        style = textStyle.copy(fontSize = 12.sp)
                     )
                     Spacer(
                         modifier = GlanceModifier
@@ -107,7 +114,7 @@ fun DrawWeather(weather: Weather?, location: String?) {
                     )
                     Text(
                         text = "${weather.temperatureLow}°",
-                        style = textStyle
+                        style = textStyle.copy(fontSize = 12.sp)
                     )
                 }
 

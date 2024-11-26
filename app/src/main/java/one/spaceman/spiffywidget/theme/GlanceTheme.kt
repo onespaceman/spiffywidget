@@ -24,5 +24,5 @@ val itemModifier = GlanceModifier
 
 @Composable
 fun DrawSpacer() {
-    Spacer(GlanceModifier.height(15.dp))
+    Spacer(GlanceModifier.height(10.dp))
 }
