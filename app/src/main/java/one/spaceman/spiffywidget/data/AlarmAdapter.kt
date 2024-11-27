@@ -11,17 +11,17 @@ object AlarmAdapter {
     fun get(
         context: Context,
         info: SystemInfo
-    ): String {
+    ): String? {
         val alarmsList = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val nextAlarm = alarmsList.runCatching { nextAlarmClock.triggerTime }.getOrNull()
+        val nextAlarm = alarmsList.runCatching { nextAlarmClock }.getOrNull()
         if (nextAlarm != null) {
-            val instant = Instant.ofEpochMilli(nextAlarm)
+            val instant = Instant.ofEpochMilli(nextAlarm.triggerTime)
             if (info.now.plus(1L, ChronoUnit.DAYS) > instant) {
                 val time = ZonedDateTime.ofInstant(instant, info.timeZone.toZoneId())
                 val alarmString = DateTimeFormatter.ofPattern("h:mma").format(time)
                 return alarmString.lowercase()
             }
         }
-        return ""
+        return null
     }
 }

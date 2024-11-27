@@ -7,8 +7,8 @@ enum class WeatherIcons(
     val night: Int,
     val description: String
 ) {
-    CODE_0(R.drawable.cloudy_day, R.drawable.clear_night, "CLEAR"),
-    CODE_1(R.drawable.cloudy_day, R.drawable.clear_night, "MOSTLY_CLEAR"),
+    CODE_0(R.drawable.clear_day, R.drawable.clear_night, "CLEAR"),
+    CODE_1(R.drawable.clear_day, R.drawable.clear_night, "MOSTLY_CLEAR"),
     CODE_2(R.drawable.cloudy_day, R.drawable.cloudy_night, "PARTLY_CLOUDY"),
     CODE_3(R.drawable.overcast_day, R.drawable.overcast_night, "OVERCAST"),
     CODE_45(R.drawable.fog_day, R.drawable.fog_night, "FOG"),

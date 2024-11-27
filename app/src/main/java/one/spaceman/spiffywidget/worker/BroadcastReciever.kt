@@ -6,25 +6,34 @@ import android.content.Intent
 import android.content.IntentFilter
 import one.spaceman.spiffywidget.worker.WidgetWorkManager.Companion.PartialUpdate
 
-object BroadcastReceiverManager {
+class BroadcastReceiverManager {
+    private var isRegistered: Boolean = false
     private val intentFilter = IntentFilter(
         android.app.AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED,
     )
 
     fun register(context: Context) {
-        context.applicationContext.registerReceiver(
-            WidgetBroadcastReceiver(),
-            intentFilter,
-            Context.RECEIVER_EXPORTED
-        )
+        try {
+            if (!isRegistered) {
+                context.registerReceiver(
+                    WidgetBroadcastReceiver(),
+                    intentFilter,
+                    Context.RECEIVER_EXPORTED
+                )
+            }
+        } finally {
+            isRegistered = true
+        }
     }
 
     fun unregister(context: Context) {
-        context.applicationContext.unregisterReceiver(WidgetBroadcastReceiver())
+        context.unregisterReceiver(WidgetBroadcastReceiver())
+        isRegistered = false
     }
 }
 
 class WidgetBroadcastReceiver : BroadcastReceiver() {
+
     override fun onReceive(context: Context?, intent: Intent?) {
 
         when (intent?.action) {

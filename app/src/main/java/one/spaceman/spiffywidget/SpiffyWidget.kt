@@ -29,6 +29,7 @@ import one.spaceman.spiffywidget.worker.WidgetWorkManager
 
 class SpiffyWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SpiffyWidget()
+    private val broadcastReceiver = BroadcastReceiverManager()
 
     override fun onUpdate(
         context: Context,
@@ -37,18 +38,19 @@ class SpiffyWidgetReceiver : GlanceAppWidgetReceiver() {
     ) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
         WidgetWorkManager(context).scheduleUpdate()
+        broadcastReceiver.register(context)
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
         WidgetWorkManager(context).updateNow()
-        BroadcastReceiverManager.register(context)
+        broadcastReceiver.register(context)
     }
 
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
         WidgetWorkManager(context).cancel()
-        BroadcastReceiverManager.unregister(context)
+        broadcastReceiver.unregister(context)
     }
 }
 
@@ -68,8 +70,8 @@ class SpiffyWidget : GlanceAppWidget() {
                     horizontalAlignment = Alignment.Start
                 ) {
                     DrawClock(context)
-                    DrawAlarm(context, state.alarm)
                     DrawWeather(state.weather, state.location)
+                    DrawAlarm(context, state.alarm)
                     DrawEvents(context, state.events)
                 }
             }

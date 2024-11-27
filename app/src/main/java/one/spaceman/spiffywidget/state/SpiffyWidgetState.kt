@@ -3,7 +3,7 @@ package one.spaceman.spiffywidget.state
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SpiffyWidgetState (
+data class SpiffyWidgetState(
     val alarm: String? = null,
     val location: String? = null,
     val events: List<CalendarEvent>? = emptyList(),

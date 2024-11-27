@@ -23,6 +23,7 @@ import one.spaceman.spiffywidget.state.Weather
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
 object WeatherAdapter {
@@ -59,7 +60,10 @@ object WeatherAdapter {
             parameter("forecast_hours", "24")
             parameter("temporal_resolution", "hourly_3")
             parameter("hourly", "temperature_2m,precipitation,weather_code,is_day")
-            parameter("daily", "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum")
+            parameter(
+                "daily",
+                "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum"
+            )
             parameter("current", "is_day,apparent_temperature")
         }.body()
     }
@@ -81,14 +85,28 @@ object WeatherAdapter {
         try {
             val response = getWeather(latitude, longitude, info.timeZone.id)
 
-            val extra = ""
             val forecast = mutableListOf<ForecastDay>()
             val timezone = info.timeZone.toZoneId()
+
+            val sunset = Instant.ofEpochSecond(response.daily.sunsetEpochSeconds.first())
+            val sunrise = Instant.ofEpochSecond(response.daily.sunriseEpochSeconds.first())
+            val extra = if (ChronoUnit.HOURS.between(info.now, sunrise) in 1..2) {
+                "Sunrise at ${
+                    LocalDateTime.ofInstant(sunrise, timezone)
+                        .format(DateTimeFormatter.ofPattern("h:mm a"))
+                }"
+            } else if (ChronoUnit.HOURS.between(info.now, sunset) in -21..99) {
+                "Sunset at ${
+                    LocalDateTime.ofInstant(sunset, timezone)
+                        .format(DateTimeFormatter.ofPattern("h:mm a"))
+                }"
+            } else ""
 
             response.hourly.epochSeconds.forEachIndexed { id, it ->
                 if (id != 0) {
                     val instant = Instant.ofEpochSecond(it)
-                    val time = LocalDateTime.ofInstant(instant, timezone).format(DateTimeFormatter.ofPattern("h:mm a"))
+                    val time = LocalDateTime.ofInstant(instant, timezone)
+                        .format(DateTimeFormatter.ofPattern("h:mm a"))
                     forecast.add(
                         ForecastDay(
                             time = time,
