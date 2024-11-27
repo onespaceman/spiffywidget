@@ -30,7 +30,12 @@ fun DrawAlarm(
     if (alarm.isNullOrEmpty()) return
 
     Row(
-        modifier = itemModifier.background(R.color.maroon),
+        modifier = itemModifier.background(R.color.maroon).clickable {
+            context.startActivity(
+                Intent(AlarmClock.ACTION_SHOW_ALARMS)
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -43,12 +48,6 @@ fun DrawAlarm(
         )
         Text(
             text = alarm,
-            modifier = GlanceModifier.clickable {
-                context.startActivity(
-                    Intent(AlarmClock.ACTION_SHOW_ALARMS)
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
-            },
             maxLines = 1,
             style = textStyle
         )

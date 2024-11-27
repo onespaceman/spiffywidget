@@ -99,10 +99,10 @@ fun DrawWeather(weather: Weather?, location: String?) {
                 Text(
                     text = "${weather.temperatureLow}°",
                     style = textStyle.copy(
-                        fontSize = 15.sp,
+                        fontSize = 12.sp,
                         color = ColorProvider(Color(0xAA89b4fa))
                     ),
-                    modifier = GlanceModifier.padding(top = 5.dp)
+                    modifier = GlanceModifier.padding(top = 7.dp)
                 )
                 Text(
                     text = "${weather.temperature}°",
@@ -115,10 +115,10 @@ fun DrawWeather(weather: Weather?, location: String?) {
                 Text(
                     text = "${weather.temperatureHigh}°",
                     style = textStyle.copy(
-                        fontSize = 15.sp,
+                        fontSize = 12.sp,
                         color = ColorProvider(Color(0xAAF38BA8))
                     ),
-                    modifier = GlanceModifier.padding(top = 5.dp)
+                    modifier = GlanceModifier.padding(top = 7.dp)
                 )
 //                Text(
 //                    text = weather.extra,
