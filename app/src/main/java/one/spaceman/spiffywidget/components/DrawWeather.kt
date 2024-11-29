@@ -52,7 +52,9 @@ fun DrawWeather(weather: Weather?, location: String?) {
             if (!location.isNullOrEmpty()) {
                 Text(
                     text = location,
-                    style = textStyle.copy(),
+                    style = textStyle.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
                     modifier = GlanceModifier.wrapContentSize().padding(top = 10.dp)
                 )
             }
@@ -74,7 +76,7 @@ fun DrawWeather(weather: Weather?, location: String?) {
                         Image(
                             provider = ImageProvider(it.icon),
                             modifier = GlanceModifier
-                                .size(45.dp),
+                                .size(40.dp),
                             contentDescription = it.iconDescription,
                         )
                         Text(
@@ -132,7 +134,8 @@ fun DrawWeather(weather: Weather?, location: String?) {
                             text = "${weather.temperatureHigh}°",
                             style = textStyle.copy(
                                 fontSize = 12.sp,
-                                color = ColorProvider(Color(0xDDF38BA8))
+                                color = ColorProvider(Color(0xDDF38BA8)),
+                                fontWeight = FontWeight.Bold
                             )
                         )
                     }

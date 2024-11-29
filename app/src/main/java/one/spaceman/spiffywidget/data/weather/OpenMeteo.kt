@@ -3,6 +3,7 @@ package one.spaceman.spiffywidget.data.weather
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -147,6 +148,7 @@ object WeatherAdapter {
                 forecast = forecast.toList()
             )
         } catch (e: Exception) {
+            Log.e("OpenMeteo-Response", e.message.toString())
             return null
         }
     }

@@ -2,6 +2,7 @@ package one.spaceman.spiffywidget.worker
 
 import android.content.Context
 import android.location.Geocoder
+import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
 import androidx.glance.GlanceId
@@ -82,6 +83,7 @@ internal class WidgetWorkTask(
             setWidgetState(glanceIds, newState)
             Result.success()
         } catch (e: Exception) {
+            Log.e("Spiffy-Worker", e.message.toString())
             setWidgetState(glanceIds, SpiffyWidgetState())
             Result.retry()
         }
