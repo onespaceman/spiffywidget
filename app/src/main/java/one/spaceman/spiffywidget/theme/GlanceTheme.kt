@@ -26,3 +26,8 @@ val itemModifier = GlanceModifier
 fun DrawSpacer() {
     Spacer(GlanceModifier.height(10.dp))
 }
+
+fun formatTime(time: String): String {
+    return time.replace("AM", "ᴀᴍ")
+        .replace("PM", "ᴘᴍ")
+}

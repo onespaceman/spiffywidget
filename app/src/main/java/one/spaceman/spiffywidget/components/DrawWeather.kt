@@ -24,6 +24,7 @@ import androidx.glance.layout.size
 import androidx.glance.layout.wrapContentSize
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.unit.ColorProvider
 import one.spaceman.spiffywidget.theme.DrawSpacer
 import one.spaceman.spiffywidget.R
@@ -72,12 +73,16 @@ fun DrawWeather(weather: Weather?, location: String?) {
                         )
                         Image(
                             provider = ImageProvider(it.icon),
-                            modifier = GlanceModifier.size(45.dp),
+                            modifier = GlanceModifier
+                                .size(45.dp),
                             contentDescription = it.iconDescription,
                         )
                         Text(
                             text = it.time,
-                            style = textStyle.copy(fontSize = 12.sp)
+                            style = textStyle.copy(
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center
+                            )
                         )
                     }
                 }
@@ -96,30 +101,42 @@ fun DrawWeather(weather: Weather?, location: String?) {
                     contentDescription = weather.iconDescription,
                     contentScale = ContentScale.Fit
                 )
-                Text(
-                    text = "${weather.temperatureLow}°",
-                    style = textStyle.copy(
-                        fontSize = 12.sp,
-                        color = ColorProvider(Color(0xAA89b4fa))
-                    ),
-                    modifier = GlanceModifier.padding(top = 7.dp)
-                )
-                Text(
-                    text = "${weather.temperature}°",
-                    style = textStyle.copy(
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Medium
-                    ),
-                    modifier = GlanceModifier.padding(start = 3.dp, end = 1.dp)
-                )
-                Text(
-                    text = "${weather.temperatureHigh}°",
-                    style = textStyle.copy(
-                        fontSize = 12.sp,
-                        color = ColorProvider(Color(0xAAF38BA8))
-                    ),
-                    modifier = GlanceModifier.padding(top = 7.dp)
-                )
+                Column (
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "${weather.temperature}°",
+                        style = textStyle.copy(
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Medium
+                        ),
+                        modifier = GlanceModifier.padding(start = 3.dp, end = 1.dp, bottom = (-3).dp)
+                    )
+                    Row {
+                        Text(
+                            text = "${weather.temperatureLow}°",
+                            style = textStyle.copy(
+                                fontSize = 12.sp,
+                                color = ColorProvider(Color(0xDD89b4fa)),
+                                fontWeight = FontWeight.Bold
+                            ),
+                        )
+                        Text(
+                            text = " | ",
+                            style = textStyle.copy(
+                                fontSize = 12.sp,
+                                color = ColorProvider(Color(0x551E1E2E))
+                            ),
+                        )
+                        Text(
+                            text = "${weather.temperatureHigh}°",
+                            style = textStyle.copy(
+                                fontSize = 12.sp,
+                                color = ColorProvider(Color(0xDDF38BA8))
+                            )
+                        )
+                    }
+                }
 //                Text(
 //                    text = weather.extra,
 //                    style = textStyle,

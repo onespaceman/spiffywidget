@@ -2,6 +2,7 @@ package one.spaceman.spiffywidget
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -24,12 +25,25 @@ import one.spaceman.spiffywidget.components.DrawEvents
 import one.spaceman.spiffywidget.components.DrawWeather
 import one.spaceman.spiffywidget.state.SpiffyWidgetState
 import one.spaceman.spiffywidget.state.SpiffyWidgetStateDefinition
-import one.spaceman.spiffywidget.worker.BroadcastReceiverManager
 import one.spaceman.spiffywidget.worker.WidgetWorkManager
+import one.spaceman.spiffywidget.worker.WidgetWorkManager.Companion.PartialUpdate
 
 class SpiffyWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SpiffyWidget()
-    private val broadcastReceiver = BroadcastReceiverManager()
+
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        when (intent.action) {
+            Intent.ACTION_LOCALE_CHANGED,
+            Intent.ACTION_TIMEZONE_CHANGED,
+            Intent.ACTION_BOOT_COMPLETED -> {
+                WidgetWorkManager(context).updateNow()
+            }
+            android.app.AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED -> {
+                WidgetWorkManager(context).updateNow(PartialUpdate.ALARM)
+            }
+        }
+    }
 
     override fun onUpdate(
         context: Context,
@@ -38,19 +52,16 @@ class SpiffyWidgetReceiver : GlanceAppWidgetReceiver() {
     ) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
         WidgetWorkManager(context).scheduleUpdate()
-        broadcastReceiver.register(context)
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
         WidgetWorkManager(context).updateNow()
-        broadcastReceiver.register(context)
     }
 
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
         WidgetWorkManager(context).cancel()
-        broadcastReceiver.unregister(context)
     }
 }
 
@@ -81,7 +92,7 @@ class SpiffyWidget : GlanceAppWidget() {
                 contentAlignment = Alignment.TopEnd
             ) {
                 Text(
-                    modifier = GlanceModifier.clickable{
+                    modifier = GlanceModifier.clickable {
                         WidgetWorkManager(context).updateNow()
                     },
                     text = "● ",

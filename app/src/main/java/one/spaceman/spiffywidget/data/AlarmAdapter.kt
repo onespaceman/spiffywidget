@@ -2,6 +2,7 @@ package one.spaceman.spiffywidget.data
 
 import android.app.AlarmManager
 import android.content.Context
+import one.spaceman.spiffywidget.theme.formatTime
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -18,7 +19,9 @@ object AlarmAdapter {
             val instant = Instant.ofEpochMilli(nextAlarm.triggerTime)
             if (info.now.plus(1L, ChronoUnit.DAYS) > instant) {
                 val time = ZonedDateTime.ofInstant(instant, info.timeZone.toZoneId())
-                val alarmString = DateTimeFormatter.ofPattern("h:mma").format(time)
+                val alarmString = formatTime(
+                    DateTimeFormatter.ofPattern("h:mma").format(time)
+                )
                 return alarmString.lowercase()
             }
         }

@@ -3,10 +3,13 @@ package one.spaceman.spiffywidget.worker
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.Data
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.time.Duration
 import java.util.concurrent.TimeUnit
@@ -22,9 +25,9 @@ class WidgetWorkManager(private val context: Context) {
     }
 
     fun scheduleUpdate() {
-        WorkManager.getInstance(context).enqueueUniqueWork(
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             SCHEDULEDUPDATENAME,
-            ExistingWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             getScheduledUpdateRequest()
         )
     }
@@ -34,6 +37,36 @@ class WidgetWorkManager(private val context: Context) {
             cancelUniqueWork(UPDATENOWNAME)
             cancelUniqueWork(SCHEDULEDUPDATENAME)
         }
+    }
+
+    private fun getUpdateNowRequest(partialUpdate: PartialUpdate?): OneTimeWorkRequest {
+        return OneTimeWorkRequestBuilder<WidgetWorkTask>()
+            .addTag(WidgetWorkTask.TAG)
+            .setInitialDelay(Duration.ofSeconds(3L))
+            .setInputData(partialUpdateBuilder(partialUpdate))
+            .build()
+    }
+
+    private fun getScheduledUpdateRequest(): PeriodicWorkRequest {
+        return PeriodicWorkRequestBuilder<WidgetWorkTask>(15L, TimeUnit.MINUTES)
+            .addTag(WidgetWorkTask.TAG)
+            .setInitialDelay(15, TimeUnit.MINUTES)
+            .build()
+    }
+
+    private fun getDRMConstraints(): Constraints {
+        return Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setRequiresBatteryNotLow(true)
+            .build()
+    }
+
+    private fun partialUpdateBuilder(partialUpdate: PartialUpdate?): Data {
+        val data = Data.Builder()
+        if (partialUpdate != null) {
+            data.putStringArray("partialUpdate", arrayOf(partialUpdate.toString()))
+        }
+        return data.build()
     }
 
     companion object {
@@ -48,38 +81,9 @@ class WidgetWorkManager(private val context: Context) {
             WEATHER;
             companion object {
                 fun getStringArray(): List<String> {
-                    return enumValues<PartialUpdate>().map{ it.name }
+                    return enumValues<PartialUpdate>().map { it.name }
                 }
             }
-        }
-
-        private fun getUpdateNowRequest(partialUpdate: PartialUpdate?): OneTimeWorkRequest =
-            OneTimeWorkRequestBuilder<WidgetWorkTask>()
-                .addTag(WidgetWorkTask.TAG)
-                .setInitialDelay(Duration.ofSeconds(3L))
-                .setInputData(partialUpdateBuilder(partialUpdate))
-                .build()
-
-        private fun getScheduledUpdateRequest(): OneTimeWorkRequest {
-            return OneTimeWorkRequestBuilder<WidgetWorkTask>()
-                .addTag(WidgetWorkTask.TAG)
-                .setInitialDelay(15, TimeUnit.MINUTES)
-                .build()
-        }
-
-        private fun getDRMConstraints(): Constraints {
-            return Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresBatteryNotLow(true)
-                .build()
-        }
-
-        private fun partialUpdateBuilder(partialUpdate: PartialUpdate?): Data {
-            val data = Data.Builder()
-            if (partialUpdate != null) {
-                data.putStringArray("partialUpdate", arrayOf(partialUpdate.toString()))
-            }
-            return data.build()
         }
     }
 }
