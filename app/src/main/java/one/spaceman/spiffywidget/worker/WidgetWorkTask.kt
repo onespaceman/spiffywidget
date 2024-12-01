@@ -1,7 +1,6 @@
 package one.spaceman.spiffywidget.worker
 
 import android.content.Context
-import android.location.Geocoder
 import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
@@ -50,10 +49,9 @@ internal class WidgetWorkTask(
             val location = LocationAdapter.get(context, locationClient)
 
             if (location != null && location.isComplete) {
-                val geocode = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1)
-                if (!geocode.isNullOrEmpty()) {
-                    val city = geocode.first()
-                    newState = newState.copy(location = "${city.locality}, ${city.adminArea}")
+                val address = LocationAdapter.geocode(context, location)
+                if (address != null) {
+                    newState = newState.copy(location = "${address.locality}, ${address.adminArea}")
                 }
 
                 if (update.contains("WEATHER")) {
@@ -61,8 +59,8 @@ internal class WidgetWorkTask(
                         weather = WeatherAdapter.getFormatedWeather(
                             context = context,
                             info = systemInfo,
-                            latitude = 37.4220936,
-                            longitude = -122.083922
+                            latitude = location.latitude,
+                            longitude = location.longitude
                         )
                     )
                 }

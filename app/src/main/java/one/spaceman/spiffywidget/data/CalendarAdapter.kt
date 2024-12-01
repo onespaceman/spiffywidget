@@ -9,6 +9,7 @@ import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import one.spaceman.spiffywidget.state.CalendarEvent
+import one.spaceman.spiffywidget.theme.formatTime
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -113,15 +114,19 @@ object CalendarAdapter {
         dateString += if (start <= localNow) {
             "Now"
         } else if (localNow.truncatedTo(ChronoUnit.DAYS) == start.truncatedTo(ChronoUnit.DAYS)) {
-            DateTimeFormatter.ofPattern("h:mm a").format(start)
+            formatTime(
+                DateTimeFormatter.ofPattern("h:mma").format(start)
+            )
         } else if (localNow.truncatedTo(ChronoUnit.DAYS).plusDays(1L) == start.truncatedTo(
                 ChronoUnit.DAYS
             )
         ) {
-            "Tomorrow at " + DateTimeFormatter.ofPattern("h:mm a").format(start)
+            formatTime(
+                "Tomorrow at " + DateTimeFormatter.ofPattern("h:mm a").format(start)
+            )
         } else {
-            DateTimeFormatter.ofPattern("MMM d").format(start) + " at " +
-                    DateTimeFormatter.ofPattern("h:mm a").format(start)
+            DateTimeFormatter.ofPattern("MMM d").format(start) + " at " + formatTime(
+                    DateTimeFormatter.ofPattern("h:mma").format(start))
         }
 
         return dateString
