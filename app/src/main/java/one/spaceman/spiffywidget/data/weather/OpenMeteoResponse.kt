@@ -49,6 +49,6 @@ data class OpenMeteoDaily(
 data class OpenMeteoCurrent(
     @SerialName("is_day")
     val isDay: Int,
-    @SerialName("apparent_temperature")
+    @SerialName("temperature_2m")
     val temperature: Double
 )

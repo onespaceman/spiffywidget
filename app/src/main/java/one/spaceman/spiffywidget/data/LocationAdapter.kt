@@ -35,8 +35,8 @@ object LocationAdapter {
         location: Location
     ): Address? {
         val address = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1)
-        if (!address.isNullOrEmpty()) {
-            return address.first()
-        } else return null
+        return if (!address.isNullOrEmpty()) {
+            address.first()
+        } else null
     }
 }

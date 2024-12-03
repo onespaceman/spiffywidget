@@ -23,7 +23,7 @@ data class Weather(
     val temperature: Int,
     val temperatureLow: Int,
     val temperatureHigh: Int,
-    val icon: Int,
+    val icon: List<Int>,
     val iconDescription: String,
     val extra: String,
     val forecast: List<ForecastDay>,
@@ -32,7 +32,7 @@ data class Weather(
 @Serializable
 data class ForecastDay(
     val time: String,
-    val icon: Int,
+    val icon: List<Int>,
     val iconDescription: String,
     val temperature: Int,
 )

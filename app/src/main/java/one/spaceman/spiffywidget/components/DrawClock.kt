@@ -43,7 +43,7 @@ fun DrawClock(
     val currentRemoteView = RemoteViews(packageName, R.layout.clock_component)
 
     Row(
-        modifier = itemModifier.background(R.color.peach),
+        modifier = itemModifier.background(R.color.pink),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalAlignment = Alignment.CenterVertically
     ) {

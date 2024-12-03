@@ -66,7 +66,7 @@ object WeatherAdapter {
                 "daily",
                 "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum"
             )
-            parameter("current", "is_day,apparent_temperature")
+            parameter("current", "is_day,temperature_2m")
         }.body()
     }
 

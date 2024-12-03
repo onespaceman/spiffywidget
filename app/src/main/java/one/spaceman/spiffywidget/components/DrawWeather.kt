@@ -15,6 +15,7 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
@@ -70,19 +71,15 @@ fun DrawWeather(weather: Weather?, location: String?) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "${it.temperature}°",
-                            style = textStyle
+                            text = " ${it.temperature}°",
+                            style = textStyle.copy(
+                                textAlign = TextAlign.Center
+                            )
                         )
-                        Image(
-                            provider = ImageProvider(it.icon),
-                            modifier = GlanceModifier
-                                .size(40.dp),
-                            contentDescription = it.iconDescription,
-                        )
+                        WeatherIcon(it.icon)
                         Text(
                             text = it.time,
                             style = textStyle.copy(
-                                fontSize = 12.sp,
                                 textAlign = TextAlign.Center
                             )
                         )
@@ -95,15 +92,8 @@ fun DrawWeather(weather: Weather?, location: String?) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    modifier = GlanceModifier
-                        .padding(end = 5.dp)
-                        .size(50.dp),
-                    provider = ImageProvider(weather.icon),
-                    contentDescription = weather.iconDescription,
-                    contentScale = ContentScale.Fit
-                )
-                Column (
+                WeatherIcon(weather.icon)
+                Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -112,7 +102,11 @@ fun DrawWeather(weather: Weather?, location: String?) {
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Medium
                         ),
-                        modifier = GlanceModifier.padding(start = 3.dp, end = 1.dp, bottom = (-3).dp)
+                        modifier = GlanceModifier.padding(
+                            start = 3.dp,
+                            end = 1.dp,
+                            bottom = (-3).dp
+                        )
                     )
                     Row {
                         Text(
@@ -149,4 +143,22 @@ fun DrawWeather(weather: Weather?, location: String?) {
         }
     }
     DrawSpacer()
+}
+
+@Composable
+fun WeatherIcon(icon: List<Int>) {
+    Box(
+        modifier = GlanceModifier
+    ) {
+        icon.forEach {
+            Image(
+                modifier = GlanceModifier
+                    .padding(end = 5.dp)
+                    .size(50.dp),
+                provider = ImageProvider(it),
+                contentDescription = "$it",
+                contentScale = ContentScale.Fit
+            )
+        }
+    }
 }
