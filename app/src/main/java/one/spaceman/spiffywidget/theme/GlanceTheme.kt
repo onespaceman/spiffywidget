@@ -14,8 +14,8 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 
 val textStyle = TextStyle(
-    fontSize = 16.sp,
-    color = ColorProvider(Color(0xFFCFCFCF)),
+    fontSize = 18.sp,
+    color = ColorProvider(Color(0xFFEFEFEF)),
     fontWeight = FontWeight.Medium
 )
 

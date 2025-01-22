@@ -99,7 +99,7 @@ fun DrawWeather(weather: Weather?, location: String?) {
                 Text(
                     text = "${weather.temperatureLow}°",
                     style = textStyle.copy(
-                        color = ColorProvider(Color(0xDD89b4fa)),
+                        color = ColorProvider(Color(0xFF89b4fa)),
                     ),
                 )
                 Text(
@@ -109,7 +109,7 @@ fun DrawWeather(weather: Weather?, location: String?) {
                 Text(
                     text = "${weather.temperatureHigh}°",
                     style = textStyle.copy(
-                        color = ColorProvider(Color(0xDDF38BA8)),
+                        color = ColorProvider(Color(0xFFF38BA8)),
                     )
                 )
             }
