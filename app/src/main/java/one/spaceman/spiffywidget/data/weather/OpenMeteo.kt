@@ -141,9 +141,8 @@ object WeatherAdapter {
                     response.daily.weatherCode.first(),
                     response.current.isDay
                 ),
-                iconDescription = WeatherIcons.getDescription(
-                    response.daily.weatherCode.first(),
-                    response.current.isDay
+                iconDescription = WeatherIcons.getText(
+                    response.daily.weatherCode.first()
                 ),
                 forecast = forecast.toList()
             )

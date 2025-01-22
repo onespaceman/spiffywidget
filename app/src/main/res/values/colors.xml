@@ -1,22 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="textColor">#FF1E1E2E</color>
-    <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="transparent">#00000000</color>
-    <color name="rosewater">#FFF5E0DC</color>
-    <color name="flamingo">#FFf2cdcd</color>
-    <color name="pink">#FFf5c2e7</color>
-    <color name="mauve">#FFcba6f7</color>
-    <color name="red">#FFF38BA8</color>
-    <color name="maroon">#FFEBA0AC</color>
-    <color name="peach">#FFfab387</color>
-    <color name="yellow">#FFf9e2af</color>
-    <color name="green">#FFa6e3a1</color>
-    <color name="teal">#FF94e2d5</color>
-    <color name="sky">#FF89dceb</color>
-    <color name="sapphire">#FF74c7ec</color>
-    <color name="blue">#FF89b4fa</color>
-    <color name="lavender">#FFb4befe</color>
-    <color name="grey">#331E1E2E</color>
 </resources>
