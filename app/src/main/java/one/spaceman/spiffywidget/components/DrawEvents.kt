@@ -6,6 +6,7 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.action.clickable
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.Row
 import androidx.glance.text.Text
 import androidx.glance.unit.ColorProvider
@@ -29,15 +30,25 @@ fun DrawEvents(
         )
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-        Row {
+        Row (
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = "◈ ",
+                text = it.date,
+                modifier = itemModifier.clickable {
+                    context.startActivity(intent)
+                },
+                maxLines = 1,
+                style = textStyle
+            )
+            Text(
+                text = " ⋄ ",
                 style = textStyle.copy(
                     color = ColorProvider(Color(0xFF89DCEB))
                 )
             )
             Text(
-                text = "${it.title}  ⋄  ${it.date}",
+                text = it.title,
                 modifier = itemModifier.clickable {
                     context.startActivity(intent)
                 },
