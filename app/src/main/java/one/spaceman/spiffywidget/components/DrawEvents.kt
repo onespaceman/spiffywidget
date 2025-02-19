@@ -5,9 +5,12 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
 import androidx.glance.action.clickable
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Row
+import androidx.glance.layout.padding
 import androidx.glance.text.Text
 import androidx.glance.unit.ColorProvider
 import one.spaceman.spiffywidget.state.CalendarEvent
@@ -31,27 +34,25 @@ fun DrawEvents(
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         Row (
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = itemModifier.clickable {
+                context.startActivity(intent)
+            }
         ) {
             Text(
                 text = it.date,
-                modifier = itemModifier.clickable {
-                    context.startActivity(intent)
-                },
                 maxLines = 1,
                 style = textStyle
             )
             Text(
                 text = " ⋄ ",
+                modifier = GlanceModifier.padding(horizontal = 5.dp),
                 style = textStyle.copy(
                     color = ColorProvider(Color(0xFF89DCEB))
                 )
             )
             Text(
                 text = it.title,
-                modifier = itemModifier.clickable {
-                    context.startActivity(intent)
-                },
                 maxLines = 1,
                 style = textStyle
             )
