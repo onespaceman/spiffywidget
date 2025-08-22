@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.provider.AlarmClock
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
@@ -17,9 +17,7 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.text.Text
-import androidx.glance.unit.ColorProvider
 import one.spaceman.spiffywidget.R
-import one.spaceman.spiffywidget.theme.DrawSpacer
 import one.spaceman.spiffywidget.theme.textStyle
 
 // Show the next scheduled alarm
@@ -31,7 +29,7 @@ fun DrawAlarm(
     if (alarm.isNullOrEmpty()) return
 
     Row(
-        modifier = GlanceModifier.clickable {
+        modifier = GlanceModifier.padding(bottom = 3.dp).clickable {
             context.startActivity(
                 Intent(AlarmClock.ACTION_SHOW_ALARMS)
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -44,14 +42,15 @@ fun DrawAlarm(
                 .padding(end = 7.dp)
                 .size(24.dp),
             provider = ImageProvider(R.drawable.baseline_alarm_24),
-            colorFilter = ColorFilter.tint(ColorProvider(Color(0xFFf38ba8))),
+            colorFilter = ColorFilter.tint(GlanceTheme.colors.inversePrimary),
             contentDescription = "Alarm",
             contentScale = ContentScale.Fit
         )
         Text(
-            text = "$alarm",
-            style = textStyle
+            text = alarm,
+            style = textStyle.copy(
+                color = GlanceTheme.colors.onPrimary
+            )
         )
     }
-    DrawSpacer()
 }

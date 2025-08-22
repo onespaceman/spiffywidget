@@ -3,10 +3,11 @@ package one.spaceman.spiffywidget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -16,9 +17,9 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.padding
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 import one.spaceman.spiffywidget.components.DrawAlarm
 import one.spaceman.spiffywidget.components.DrawClock
 import one.spaceman.spiffywidget.components.DrawEvents
@@ -39,6 +40,7 @@ class SpiffyWidgetReceiver : GlanceAppWidgetReceiver() {
             Intent.ACTION_BOOT_COMPLETED -> {
                 WidgetWorkManager(context).updateNow()
             }
+
             android.app.AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED -> {
                 WidgetWorkManager(context).updateNow(PartialUpdate.ALARM)
             }
@@ -72,35 +74,37 @@ class SpiffyWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
         provideContent {
-            val state = currentState<SpiffyWidgetState>()
+            GlanceTheme {
+                val state = currentState<SpiffyWidgetState>()
 
-            Box(GlanceModifier.fillMaxSize()) {
-                Column(
-                    modifier = GlanceModifier.fillMaxSize(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    DrawClock(context)
-                    DrawWeather(state.weather, state.location)
-                    DrawAlarm(context, state.alarm)
-                    DrawEvents(context, state.events)
+                Box(GlanceModifier.fillMaxSize().padding(vertical = 2.dp)) {
+                    Column(
+                        modifier = GlanceModifier.fillMaxSize(),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        DrawClock(context)
+                        DrawWeather(state.weather, context)
+                        DrawAlarm(context, state.alarm)
+                        DrawEvents(context, state.events)
+                    }
                 }
-            }
-            // Secret update button
-            Box(
-                modifier = GlanceModifier.fillMaxSize(),
-                contentAlignment = Alignment.TopEnd
-            ) {
-                Text(
-                    modifier = GlanceModifier.clickable {
-                        WidgetWorkManager(context).updateNow()
-                    },
-                    text = "● ",
-                    style = TextStyle(
-                        fontSize = 30.sp,
-                        color = ColorProvider(Color(0x0FFFFFFF))
-                    ),
-                )
+                // Secret update button
+                Box(
+                    modifier = GlanceModifier.fillMaxSize(),
+                    contentAlignment = Alignment.TopEnd
+                ) {
+                    Text(
+                        modifier = GlanceModifier.clickable {
+                            WidgetWorkManager(context).updateNow()
+                        },
+                        text = "● ",
+                        style = TextStyle(
+                            fontSize = 30.sp,
+                            color = GlanceTheme.colors.inverseSurface
+                        ),
+                    )
+                }
             }
         }
     }

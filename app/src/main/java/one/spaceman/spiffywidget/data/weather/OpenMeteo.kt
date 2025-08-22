@@ -64,7 +64,7 @@ object WeatherAdapter {
             parameter("hourly", "temperature_2m,precipitation,weather_code,is_day")
             parameter(
                 "daily",
-                "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum"
+                "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,uv_index_max"
             )
             parameter("current", "is_day,temperature_2m")
         }.body()
@@ -133,9 +133,11 @@ object WeatherAdapter {
             }
 
             return Weather(
+                lastUpdate = info.now.epochSecond,
                 temperature = response.current.temperature.roundToInt(),
                 temperatureLow = response.daily.temperatureMin.first().roundToInt(),
                 temperatureHigh = response.daily.temperatureMax.first().roundToInt(),
+                uvIndex = response.daily.uvIndex.first().roundToInt(),
                 extra = extra,
                 icon = WeatherIcons.getIcon(
                     response.daily.weatherCode.first(),

@@ -2,20 +2,16 @@ package one.spaceman.spiffywidget.components
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.action.clickable
-import androidx.glance.layout.Alignment
 import androidx.glance.layout.Row
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
-import androidx.glance.unit.ColorProvider
 import one.spaceman.spiffywidget.state.CalendarEvent
-import one.spaceman.spiffywidget.theme.DrawSpacer
-import one.spaceman.spiffywidget.theme.itemModifier
 import one.spaceman.spiffywidget.theme.textStyle
 
 // Show the next few events within the next week
@@ -25,38 +21,36 @@ fun DrawEvents(
     events: List<CalendarEvent>?
 ) {
     if (events.isNullOrEmpty()) return
+    val style = textStyle.copy(color = GlanceTheme.colors.onPrimary)
 
     events.forEach {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("content://com.android.calendar/time/${it.id}")
-        )
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            "content://com.android.calendar/time/${it.id}".toUri()
+        ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         Row (
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = itemModifier.clickable {
+            modifier = GlanceModifier.padding(bottom = 3.dp).clickable {
                 context.startActivity(intent)
             }
         ) {
             Text(
                 text = it.date,
                 maxLines = 1,
-                style = textStyle
+                style = style
             )
             Text(
                 text = " ⋄ ",
                 modifier = GlanceModifier.padding(horizontal = 5.dp),
-                style = textStyle.copy(
-                    color = ColorProvider(Color(0xFF89DCEB))
+                style = style.copy(
+                    color = GlanceTheme.colors.inversePrimary
                 )
             )
             Text(
                 text = it.title,
                 maxLines = 1,
-                style = textStyle
+                style = style
             )
         }
-        DrawSpacer()
     }
 }

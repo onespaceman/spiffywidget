@@ -20,9 +20,12 @@ data class CalendarEvent(
 
 @Serializable
 data class Weather(
+    val lastUpdate: Long,
+    val outdated: Boolean = false,
     val temperature: Int,
     val temperatureLow: Int,
     val temperatureHigh: Int,
+    val uvIndex: Int,
     val icon: List<Int>,
     val iconDescription: String,
     val extra: String,

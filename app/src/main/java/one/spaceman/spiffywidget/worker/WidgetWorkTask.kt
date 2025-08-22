@@ -39,11 +39,7 @@ internal class WidgetWorkTask(
             inputData.getStringArray("partialUpdate")?.toList() ?: PartialUpdate.getStringArray()
 
         return try {
-            var newState = if (update.contains("ALL")) {
-                SpiffyWidgetState()
-            } else {
-                getWidgetState(glanceIds)
-            }
+            var newState = getWidgetState(glanceIds)
 
             val systemInfo = SystemInfo()
             val location = LocationAdapter.get(context, locationClient)
@@ -55,14 +51,22 @@ internal class WidgetWorkTask(
                 }
 
                 if (update.contains("WEATHER")) {
-                    newState = newState.copy(
-                        weather = WeatherAdapter.getFormatedWeather(
+                    if (newState.weather == null || systemInfo.now.epochSecond - newState.weather.lastUpdate > 3600) {
+                        val weather =  WeatherAdapter.getFormatedWeather(
                             context = context,
                             info = systemInfo,
                             latitude = location.latitude,
                             longitude = location.longitude
                         )
-                    )
+                        if (weather != null) {
+                            newState = newState.copy(weather = weather)
+                        } else if (newState.weather != null) {
+                            newState = newState.copy(
+                                weather = newState.weather.copy(outdated = true)
+                            )
+                        }
+
+                    }
                 }
             }
 

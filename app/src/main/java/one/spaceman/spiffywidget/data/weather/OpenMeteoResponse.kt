@@ -43,6 +43,8 @@ data class OpenMeteoDaily(
     val sunsetEpochSeconds: List<Long>,
     @SerialName("precipitation_sum")
     val precipitation: List<Double>,
+    @SerialName("uv_index_max")
+    val uvIndex: List<Double>,
 )
 
 @Serializable

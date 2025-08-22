@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "one.spaceman.spiffywidget"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "one.spaceman.spiffywidget"
@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.androidx.glance.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
