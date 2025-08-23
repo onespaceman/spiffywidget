@@ -101,7 +101,7 @@ class SpiffyWidget : GlanceAppWidget() {
                         text = "● ",
                         style = TextStyle(
                             fontSize = 30.sp,
-                            color = GlanceTheme.colors.inverseSurface
+                            color = GlanceTheme.colors.surface
                         ),
                     )
                 }

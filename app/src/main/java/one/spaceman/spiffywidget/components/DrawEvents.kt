@@ -21,7 +21,7 @@ fun DrawEvents(
     events: List<CalendarEvent>?
 ) {
     if (events.isNullOrEmpty()) return
-    val style = textStyle.copy(color = GlanceTheme.colors.onPrimary)
+    val style = textStyle.copy(color = GlanceTheme.colors.secondary)
 
     events.forEach {
         val intent = Intent(
@@ -43,7 +43,7 @@ fun DrawEvents(
                 text = " ⋄ ",
                 modifier = GlanceModifier.padding(horizontal = 5.dp),
                 style = style.copy(
-                    color = GlanceTheme.colors.inversePrimary
+                    color = GlanceTheme.colors.tertiary
                 )
             )
             Text(

@@ -24,7 +24,7 @@ fun DrawWeather(weather: Weather?, context: Context) {
     if (weather == null) return
 
     val style = textStyle.copy(
-        color = if (weather.outdated) GlanceTheme.colors.errorContainer else GlanceTheme.colors.onPrimary
+        color = if (weather.outdated) GlanceTheme.colors.onError else GlanceTheme.colors.secondary
     )
 
     val intent = context.packageManager.getLaunchIntentForPackage("cz.ackee.ventusky")

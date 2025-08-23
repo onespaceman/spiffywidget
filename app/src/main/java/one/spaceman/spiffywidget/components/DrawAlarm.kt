@@ -42,14 +42,14 @@ fun DrawAlarm(
                 .padding(end = 7.dp)
                 .size(24.dp),
             provider = ImageProvider(R.drawable.baseline_alarm_24),
-            colorFilter = ColorFilter.tint(GlanceTheme.colors.inversePrimary),
+            colorFilter = ColorFilter.tint(GlanceTheme.colors.tertiary),
             contentDescription = "Alarm",
             contentScale = ContentScale.Fit
         )
         Text(
             text = alarm,
             style = textStyle.copy(
-                color = GlanceTheme.colors.onPrimary
+                color = GlanceTheme.colors.secondary
             )
         )
     }

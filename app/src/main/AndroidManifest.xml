@@ -30,5 +30,7 @@
                 android:resource="@xml/my_app_widget_info" />
         </receiver>
     </application>
-
+    <queries>
+        <package android:name="cz.ackee.ventusky" />
+    </queries>
 </manifest>

@@ -54,7 +54,7 @@ fun DrawClock(
             text = SystemInfo().date.format(DateTimeFormatter.ofPattern("EEEE MMMM d")).uppercase(),
             style = TextStyle(
                 fontSize = 24.sp,
-                color = GlanceTheme.colors.onPrimary,
+                color = GlanceTheme.colors.secondary,
             ),
         )
 
@@ -99,7 +99,7 @@ fun DrawClock(
                         text = "HOME",
                         style = TextStyle(
                             fontSize = 14.sp,
-                            color = GlanceTheme.colors.onPrimary
+                            color = GlanceTheme.colors.secondary
                         )
                     )
                     AndroidRemoteViews(
