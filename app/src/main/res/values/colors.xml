@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="textColor">#FF1E1E2E</color>
+    <color name="hidden">#11FFFFFF</color>
     <color name="red">#FFF38BA8</color>
     <color name="blue">#FF89B4FA</color>
 </resources>

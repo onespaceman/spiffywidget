@@ -2,19 +2,19 @@ package one.spaceman.spiffywidget.worker
 
 import android.content.Context
 import android.util.Log
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.updateAll
 import androidx.glance.GlanceId
-import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.appwidget.updateAll
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.android.gms.location.LocationServices
-import one.spaceman.spiffywidget.data.CalendarAdapter
-import one.spaceman.spiffywidget.data.SystemInfo
 import one.spaceman.spiffywidget.SpiffyWidget
 import one.spaceman.spiffywidget.data.AlarmAdapter
+import one.spaceman.spiffywidget.data.CalendarAdapter
 import one.spaceman.spiffywidget.data.LocationAdapter
+import one.spaceman.spiffywidget.data.SystemInfo
 import one.spaceman.spiffywidget.data.weather.WeatherAdapter
 import one.spaceman.spiffywidget.state.SpiffyWidgetState
 import one.spaceman.spiffywidget.state.SpiffyWidgetStateDefinition
@@ -27,6 +27,7 @@ internal class WidgetWorkTask(
 
     companion object {
         private const val MAXIMUM_RETRIES = 3
+        private const val MIN_WEATHER_INTERVAL = 900 // minimum time between weather updates - 15min
         const val TAG = "spiffy-worker"
     }
 
@@ -51,8 +52,8 @@ internal class WidgetWorkTask(
                 }
 
                 if (update.contains("WEATHER")) {
-                    if (newState.weather == null || systemInfo.now.epochSecond - newState.weather.lastUpdate > 3600) {
-                        val weather =  WeatherAdapter.getFormatedWeather(
+                    if (newState.weather == null || systemInfo.now.epochSecond - newState.weather.lastUpdate > MIN_WEATHER_INTERVAL) {
+                        val weather = WeatherAdapter.getFormatedWeather(
                             context = context,
                             info = systemInfo,
                             latitude = location.latitude,
@@ -83,6 +84,7 @@ internal class WidgetWorkTask(
             }
 
             setWidgetState(glanceIds, newState)
+            Log.i("Spiffy Widget", "Updated Spiffy Widget with $update")
             Result.success()
         } catch (e: Exception) {
             Log.e("Spiffy-Worker", e.message.toString())

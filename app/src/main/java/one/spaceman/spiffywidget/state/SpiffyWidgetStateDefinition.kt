@@ -16,13 +16,11 @@ object SpiffyWidgetStateDefinition : GlanceStateDefinition<SpiffyWidgetState> {
     private val Context.datastore by dataStore(DATA_STORE_FILE_NAME, SpiffyWidgetStateSerializer)
 
     override suspend fun getDataStore(
-        context: Context,
-        fileKey: String
+        context: Context, fileKey: String
     ): DataStore<SpiffyWidgetState> = context.datastore
 
     override fun getLocation(
-        context: Context,
-        fileKey: String
+        context: Context, fileKey: String
     ): File = context.dataStoreFile(DATA_STORE_FILE_NAME)
 
     object SpiffyWidgetStateSerializer : Serializer<SpiffyWidgetState> {
@@ -30,8 +28,7 @@ object SpiffyWidgetStateDefinition : GlanceStateDefinition<SpiffyWidgetState> {
 
         override suspend fun readFrom(input: InputStream): SpiffyWidgetState = try {
             Json.decodeFromString(
-                SpiffyWidgetState.serializer(),
-                input.readBytes().decodeToString()
+                SpiffyWidgetState.serializer(), input.readBytes().decodeToString()
             )
         } catch (e: Exception) {
             SpiffyWidgetState()
@@ -41,8 +38,7 @@ object SpiffyWidgetStateDefinition : GlanceStateDefinition<SpiffyWidgetState> {
             output.use {
                 it.write(
                     Json.encodeToString(
-                        SpiffyWidgetState.serializer(),
-                        t
+                        SpiffyWidgetState.serializer(), t
                     ).encodeToByteArray()
                 )
             }

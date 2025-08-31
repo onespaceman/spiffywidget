@@ -1,5 +1,6 @@
 package one.spaceman.spiffywidget
 
+import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
@@ -20,6 +21,7 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import one.spaceman.spiffywidget.components.DrawAlarm
 import one.spaceman.spiffywidget.components.DrawClock
 import one.spaceman.spiffywidget.components.DrawEvents
@@ -71,12 +73,12 @@ class SpiffyWidget : GlanceAppWidget() {
 
     override val stateDefinition = SpiffyWidgetStateDefinition
 
+    @SuppressLint("RestrictedApi")
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
         provideContent {
             GlanceTheme {
                 val state = currentState<SpiffyWidgetState>()
-
                 Box(GlanceModifier.fillMaxSize().padding(vertical = 2.dp)) {
                     Column(
                         modifier = GlanceModifier.fillMaxSize(),
@@ -101,7 +103,7 @@ class SpiffyWidget : GlanceAppWidget() {
                         text = "● ",
                         style = TextStyle(
                             fontSize = 30.sp,
-                            color = GlanceTheme.colors.surface
+                            color = ColorProvider(resId = R.color.hidden)
                         ),
                     )
                 }
