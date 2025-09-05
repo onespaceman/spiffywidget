@@ -64,8 +64,10 @@ fun DrawWeather(weather: Weather?, context: Context) {
             )
             Text(text = " ⋄ ", style = style)
             Text(
-                text = "☀ ${weather.uvIndex}",
-                style = style
+                text = "${weather.uvIndex}",
+                style = style.copy(
+                    color = ColorProvider(resId = R.color.yellow)
+                )
             )
         }
     }

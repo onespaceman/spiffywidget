@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SpiffyWidgetState(
     val alarm: String? = null,
-    val location: String? = null,
     val events: List<CalendarEvent>? = emptyList(),
     val weather: Weather? = null,
 )

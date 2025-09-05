@@ -52,38 +52,42 @@ object CalendarAdapter {
         val begin = now.toEpochMilli()
         val end = begin.plus(604800000) // 1 Week
 
-        val cur = context.contentResolver.query(
-            uri,
-            EVENT_PROJECTION,
-            "(${CalendarContract.Events.DTSTART} >= ? AND ${CalendarContract.Events.DTSTART} <= ?) OR (${CalendarContract.Events.DTSTART} <= ? AND ${CalendarContract.Events.DTEND} >= ?)",
-            arrayOf(begin.toString(), end.toString(), begin.toString(), begin.toString()),
-            null
-        )
+        try {
+            val cur = context.contentResolver.query(
+                uri,
+                EVENT_PROJECTION,
+                "(${CalendarContract.Events.DTSTART} >= ? AND ${CalendarContract.Events.DTSTART} <= ?) OR (${CalendarContract.Events.DTSTART} <= ? AND ${CalendarContract.Events.DTEND} >= ?)",
+                arrayOf(begin.toString(), end.toString(), begin.toString(), begin.toString()),
+                null
+            )
 
-        while (cur?.moveToNext() == true) {
-            val dtStart = cur.getLongOrNull(4)
-            val dtEnd = cur.getLongOrNull(5)
-            val allDay = cur.getIntOrNull(6) == 1
-            val visible = cur.getIntOrNull(8) == 1
+            while (cur?.moveToNext() == true) {
+                val dtStart = cur.getLongOrNull(4)
+                val dtEnd = cur.getLongOrNull(5)
+                val allDay = cur.getIntOrNull(6) == 1
+                val visible = cur.getIntOrNull(8) == 1
 
-            if (visible) {
-                events.add(
-                    EventItem(
-                        id = cur.getLong(0),
-                        title = cur.getStringOrNull(1),
-                        eventLocation = cur.getStringOrNull(2),
-                        status = cur.getIntOrNull(3),
-                        dtStart = Instant.ofEpochMilli(dtStart!!),
-                        dtEnd = Instant.ofEpochMilli(dtEnd!!),
-                        allDay = allDay,
-                        displayColor = cur.getIntOrNull(7),
+                if (visible && dtStart != null && dtEnd != null) {
+                    events.add(
+                        EventItem(
+                            id = cur.getLong(0),
+                            title = cur.getStringOrNull(1),
+                            eventLocation = cur.getStringOrNull(2),
+                            status = cur.getIntOrNull(3),
+                            dtStart = Instant.ofEpochMilli(dtStart),
+                            dtEnd = Instant.ofEpochMilli(dtEnd),
+                            allDay = allDay,
+                            displayColor = cur.getIntOrNull(7),
+                        )
                     )
-                )
+                }
             }
-        }
-        cur?.close()
+            cur?.close()
 
-        return filterEvents(events.toSortedSet(compareBy { it.dtStart }), now)
+            return filterEvents(events.toSortedSet(compareBy { it.dtStart }), now)
+        } catch (e: Exception) {
+            return events
+        }
     }
 
     private fun filterEvents(
@@ -126,7 +130,8 @@ object CalendarAdapter {
             )
         } else {
             DateTimeFormatter.ofPattern("MMM d").format(start) + " at " + formatTime(
-                    DateTimeFormatter.ofPattern("h:mma").format(start))
+                DateTimeFormatter.ofPattern("h:mma").format(start)
+            )
         }
 
         return dateString

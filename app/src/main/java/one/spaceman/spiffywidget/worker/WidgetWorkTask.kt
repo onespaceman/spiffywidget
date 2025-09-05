@@ -43,16 +43,11 @@ internal class WidgetWorkTask(
             var newState = getWidgetState(glanceIds)
 
             val systemInfo = SystemInfo()
-            val location = LocationAdapter.get(context, locationClient)
 
-            if (location != null && location.isComplete) {
-                val address = LocationAdapter.geocode(context, location)
-                if (address != null) {
-                    newState = newState.copy(location = "${address.locality}, ${address.adminArea}")
-                }
-
-                if (update.contains("WEATHER")) {
-                    if (newState.weather == null || systemInfo.now.epochSecond - newState.weather.lastUpdate > MIN_WEATHER_INTERVAL) {
+            if (update.contains("WEATHER")) {
+                if (newState.weather == null || systemInfo.now.epochSecond - newState.weather.lastUpdate > MIN_WEATHER_INTERVAL) {
+                    val location = LocationAdapter.get(context, locationClient)
+                    if (location != null && location.isComplete) {
                         val weather = WeatherAdapter.getFormatedWeather(
                             context = context,
                             info = systemInfo,
@@ -66,7 +61,6 @@ internal class WidgetWorkTask(
                                 weather = newState.weather.copy(outdated = true)
                             )
                         }
-
                     }
                 }
             }
@@ -85,10 +79,10 @@ internal class WidgetWorkTask(
 
             setWidgetState(glanceIds, newState)
             Log.i("Spiffy Widget", "Updated Spiffy Widget with $update")
+
             Result.success()
         } catch (e: Exception) {
             Log.e("Spiffy-Worker", e.message.toString())
-            setWidgetState(glanceIds, SpiffyWidgetState())
             Result.retry()
         }
     }
