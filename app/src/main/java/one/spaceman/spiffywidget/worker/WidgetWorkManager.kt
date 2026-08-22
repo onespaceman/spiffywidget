@@ -1,89 +1,48 @@
 package one.spaceman.spiffywidget.worker
 
 import android.content.Context
-import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 class WidgetWorkManager(private val context: Context) {
-
-    fun updateNow(partialUpdate: PartialUpdate? = null) {
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            UPDATENOWNAME,
-            ExistingWorkPolicy.REPLACE,
-            getUpdateNowRequest(partialUpdate)
-        )
+    enum class PartialUpdate {
+        ALARM, EVENTS, WEATHER;
     }
 
     fun scheduleUpdate() {
+        val work = PeriodicWorkRequestBuilder<UpdateSpiffyState>(15, TimeUnit.MINUTES).addTag(
+                UpdateSpiffyState.TAG
+            ).build()
+
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            SCHEDULEDUPDATENAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
-            getScheduledUpdateRequest()
+            "spiffy_refresh", ExistingPeriodicWorkPolicy.REPLACE, work
+        )
+    }
+
+    fun updateNow(
+        parts: Array<PartialUpdate> = arrayOf(
+            PartialUpdate.ALARM,
+            PartialUpdate.EVENTS,
+            PartialUpdate.WEATHER
+        )
+    ) {
+        val data =
+            Data.Builder().putStringArray("parts", parts.map { it.name }.toTypedArray()).build()
+        val work = OneTimeWorkRequestBuilder<UpdateSpiffyState>().addTag(UpdateSpiffyState.TAG)
+            .setInitialDelay(Duration.ofSeconds(3)).setInputData(data).build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "spiffy_refresh_now", ExistingWorkPolicy.APPEND, work
         )
     }
 
     fun cancel() {
-        WorkManager.getInstance(context).run {
-            cancelUniqueWork(UPDATENOWNAME)
-            cancelUniqueWork(SCHEDULEDUPDATENAME)
-        }
-    }
-
-    private fun getUpdateNowRequest(partialUpdate: PartialUpdate?): OneTimeWorkRequest {
-        return OneTimeWorkRequestBuilder<WidgetWorkTask>()
-            .addTag(WidgetWorkTask.TAG)
-            .setInitialDelay(Duration.ofSeconds(3L))
-            .setInputData(partialUpdateBuilder(partialUpdate))
-            .build()
-    }
-
-    private fun getScheduledUpdateRequest(): PeriodicWorkRequest {
-        return PeriodicWorkRequestBuilder<WidgetWorkTask>(15L, TimeUnit.MINUTES)
-            .addTag(WidgetWorkTask.TAG)
-            .setInitialDelay(15, TimeUnit.MINUTES)
-            .build()
-    }
-
-    private fun getDRMConstraints(): Constraints {
-        return Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(true)
-            .build()
-    }
-
-    private fun partialUpdateBuilder(partialUpdate: PartialUpdate?): Data {
-        val data = Data.Builder()
-        if (partialUpdate != null) {
-            data.putStringArray("partialUpdate", arrayOf(partialUpdate.toString()))
-        }
-        return data.build()
-    }
-
-    companion object {
-
-        private const val UPDATENOWNAME = "update_now"
-        private const val SCHEDULEDUPDATENAME = "update_scheduled"
-
-        enum class PartialUpdate {
-            ALL,
-            ALARM,
-            EVENTS,
-            WEATHER;
-            companion object {
-                fun getStringArray(): List<String> {
-                    return enumValues<PartialUpdate>().map { it.name }
-                }
-            }
-        }
+        WorkManager.getInstance(context).cancelAllWorkByTag(UpdateSpiffyState.TAG)
     }
 }

@@ -26,9 +26,9 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentWidth
 import androidx.glance.text.Text
-import androidx.glance.text.TextStyle
 import one.spaceman.spiffywidget.R
 import one.spaceman.spiffywidget.data.SystemInfo
+import one.spaceman.spiffywidget.theme.textStyle
 import java.time.format.DateTimeFormatter
 import java.util.TimeZone
 
@@ -44,6 +44,7 @@ fun DrawClock(
 
     val homeRemoteView = RemoteViews(packageName, R.layout.clock_component)
     val currentRemoteView = RemoteViews(packageName, R.layout.clock_component)
+    val style = textStyle.copy(color = GlanceTheme.colors.secondary)
 
     Column(
         modifier = GlanceModifier.fillMaxWidth().padding(bottom = 5.dp),
@@ -52,10 +53,7 @@ fun DrawClock(
     ) {
         Text(
             text = SystemInfo().date.format(DateTimeFormatter.ofPattern("EEEE MMMM d")).uppercase(),
-            style = TextStyle(
-                fontSize = 24.sp,
-                color = GlanceTheme.colors.secondary,
-            ),
+            style = style.copy(fontSize = style.fontSize?.times(1.5)),
         )
 
         if (homeTimeZone != currentTimeZone) {
@@ -88,7 +86,7 @@ fun DrawClock(
                             setTextViewTextSize(
                                 R.id.clock_view,
                                 TypedValue.COMPLEX_UNIT_SP,
-                                32f
+                                35f
                             )
                         }
                     }
@@ -97,10 +95,7 @@ fun DrawClock(
                 Column {
                     Text(
                         text = "HOME",
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            color = GlanceTheme.colors.secondary
-                        )
+                        style = style.copy(fontSize = 14.sp)
                     )
                     AndroidRemoteViews(
                         modifier = GlanceModifier.wrapContentWidth(),
@@ -126,7 +121,7 @@ fun DrawClock(
                                 setTextViewTextSize(
                                     R.id.clock_view,
                                     TypedValue.COMPLEX_UNIT_SP,
-                                    14f
+                                    15f
                                 )
                             }
                         }

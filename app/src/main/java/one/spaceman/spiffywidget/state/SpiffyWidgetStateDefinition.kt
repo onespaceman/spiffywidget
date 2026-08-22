@@ -30,7 +30,7 @@ object SpiffyWidgetStateDefinition : GlanceStateDefinition<SpiffyWidgetState> {
             Json.decodeFromString(
                 SpiffyWidgetState.serializer(), input.readBytes().decodeToString()
             )
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             SpiffyWidgetState()
         }
 

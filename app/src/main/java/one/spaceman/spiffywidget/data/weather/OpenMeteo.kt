@@ -19,7 +19,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import one.spaceman.spiffywidget.data.SystemInfo
-import one.spaceman.spiffywidget.state.ForecastDay
 import one.spaceman.spiffywidget.state.Weather
 import one.spaceman.spiffywidget.theme.formatTime
 import java.time.Instant
@@ -46,9 +45,7 @@ object WeatherAdapter {
     }
 
     private suspend fun getWeather(
-        latitude: Double,
-        longitude: Double,
-        timeZone: String
+        latitude: Double, longitude: Double, timeZone: String
     ): OpenMeteoResponse {
         return httpClient.get(urlString = BASE_URL) {
             header(HttpHeaders.UserAgent, "Spiffy Widget, platform: Android")
@@ -59,9 +56,6 @@ object WeatherAdapter {
             parameter("temperature_unit", "fahrenheit")
             parameter("precipitation_unit", "inch")
             parameter("wind_speed_unit", "mph")
-            parameter("forecast_hours", "24")
-            parameter("temporal_resolution", "hourly_3")
-            parameter("hourly", "temperature_2m,precipitation,weather_code,is_day")
             parameter(
                 "daily",
                 "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,uv_index_max"
@@ -71,10 +65,7 @@ object WeatherAdapter {
     }
 
     suspend fun getFormatedWeather(
-        context: Context,
-        info: SystemInfo,
-        latitude: Double,
-        longitude: Double
+        context: Context, info: SystemInfo, latitude: Double, longitude: Double
     ): Weather? {
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -87,7 +78,6 @@ object WeatherAdapter {
         try {
             val response = getWeather(latitude, longitude, info.timeZone.id)
 
-            val forecast = mutableListOf<ForecastDay>()
             val timezone = info.timeZone.toZoneId()
 
             val sunset = Instant.ofEpochSecond(response.daily.sunsetEpochSeconds.first())
@@ -108,30 +98,6 @@ object WeatherAdapter {
                 }"
             } else ""
 
-            response.hourly.epochSeconds.forEachIndexed { id, it ->
-                if (id != 0) {
-                    val instant = Instant.ofEpochSecond(it)
-                    val time = formatTime(
-                        LocalDateTime.ofInstant(instant, timezone)
-                            .format(DateTimeFormatter.ofPattern("h:mm\na"))
-                    )
-                    forecast.add(
-                        ForecastDay(
-                            time = time,
-                            icon = WeatherIcons.getIcon(
-                                response.hourly.weatherCode[id],
-                                response.hourly.isDay[id]
-                            ),
-                            iconDescription = WeatherIcons.getDescription(
-                                response.hourly.weatherCode[id],
-                                response.hourly.isDay[id]
-                            ),
-                            temperature = response.hourly.temperature[id].roundToInt(),
-                        )
-                    )
-                }
-            }
-
             return Weather(
                 lastUpdate = info.now.epochSecond,
                 temperature = response.current.temperature.roundToInt(),
@@ -139,14 +105,7 @@ object WeatherAdapter {
                 temperatureHigh = response.daily.temperatureMax.first().roundToInt(),
                 uvIndex = response.daily.uvIndex.first().roundToInt(),
                 extra = extra,
-                icon = WeatherIcons.getIcon(
-                    response.daily.weatherCode.first(),
-                    response.current.isDay
-                ),
-                iconDescription = WeatherIcons.getText(
-                    response.daily.weatherCode.first()
-                ),
-                forecast = forecast.toList()
+                description = WeatherStates.valueOf("CODE_${response.daily.weatherCode.first()}").description,
             )
         } catch (e: Exception) {
             Log.e("OpenMeteo-Response", e.message.toString())

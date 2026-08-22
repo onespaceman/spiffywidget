@@ -10,8 +10,7 @@ import java.time.temporal.ChronoUnit
 
 object AlarmAdapter {
     fun get(
-        context: Context,
-        info: SystemInfo
+        context: Context, info: SystemInfo
     ): String? {
         val alarmsList = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val nextAlarm = alarmsList.runCatching { nextAlarmClock }.getOrNull()

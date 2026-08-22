@@ -44,8 +44,7 @@ internal data class EventItem(
 
 object CalendarAdapter {
     private fun getEvents(
-        context: Context,
-        now: Instant
+        context: Context, now: Instant
     ): Set<EventItem> {
         val events: MutableSet<EventItem> = HashSet()
         val uri = CalendarContract.Events.CONTENT_URI
@@ -85,14 +84,13 @@ object CalendarAdapter {
             cur?.close()
 
             return filterEvents(events.toSortedSet(compareBy { it.dtStart }), now)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return events
         }
     }
 
     private fun filterEvents(
-        events: SortedSet<EventItem>,
-        now: Instant
+        events: SortedSet<EventItem>, now: Instant
     ): SortedSet<EventItem> {
         if (events.isNotEmpty()) {
             val firstEventDay = if (events.first().dtStart!! >= now) {
@@ -107,8 +105,7 @@ object CalendarAdapter {
     }
 
     private fun formatEvent(
-        event: EventItem,
-        info: SystemInfo
+        event: EventItem, info: SystemInfo
     ): String {
         var dateString = ""
         val localNow = ZonedDateTime.ofInstant(info.now, info.timeZone.toZoneId())
@@ -138,8 +135,7 @@ object CalendarAdapter {
     }
 
     private fun formatAllDay(
-        event: EventItem,
-        info: SystemInfo
+        event: EventItem, info: SystemInfo
     ): String {
         var dateString = ""
         val localNow = LocalDateTime.ofInstant(info.now, info.timeZone.toZoneId()).toLocalDate()

@@ -12,17 +12,15 @@ import kotlinx.coroutines.tasks.await
 
 object LocationAdapter {
     suspend fun get(
-        context: Context,
-        locationClient: FusedLocationProviderClient
+        context: Context, locationClient: FusedLocationProviderClient
     ): Location? {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-            ) == PackageManager.PERMISSION_GRANTED &&
-        ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ) == PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ) == PackageManager.PERMISSION_GRANTED
         ) {
 
             val location = locationClient.lastLocation.await()
@@ -31,8 +29,7 @@ object LocationAdapter {
     }
 
     fun geocode(
-        context: Context,
-        location: Location
+        context: Context, location: Location
     ): Address? {
         val address = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1)
         return if (!address.isNullOrEmpty()) {

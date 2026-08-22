@@ -5,11 +5,10 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
 
 val textStyle = TextStyle(
-    fontSize = 18.sp,
+    fontSize = 20.sp,
     fontWeight = FontWeight.Medium,
 )
 
 fun formatTime(time: String): String {
-    return time.replace("AM", "ᴀᴍ")
-        .replace("PM", "ᴘᴍ")
+    return time.replace("AM", "ᴀᴍ").replace("PM", "ᴘᴍ")
 }
