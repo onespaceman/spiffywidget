@@ -1,18 +1,19 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     kotlin("plugin.serialization") version "2.0.21"
 }
 
 android {
     namespace = "one.spaceman.spiffywidget"
-    compileSdk = 36
+    compileSdk {
+        version = release(37)
+    }
 
     defaultConfig {
         applicationId = "one.spaceman.spiffywidget"
         minSdk = 35
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 1
         versionName = "3.3"
 
@@ -46,9 +47,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+
+    compileSdkMinor = 0
 }
 
 dependencies {
