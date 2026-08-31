@@ -12,37 +12,42 @@ import java.util.concurrent.TimeUnit
 
 class WidgetWorkManager(private val context: Context) {
     enum class PartialUpdate {
-        ALARM, EVENTS, WEATHER;
-    }
-
-    fun scheduleUpdate() {
-        val work = PeriodicWorkRequestBuilder<UpdateSpiffyState>(15, TimeUnit.MINUTES).addTag(
-                UpdateSpiffyState.TAG
-            ).build()
-
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            "spiffy_refresh", ExistingPeriodicWorkPolicy.REPLACE, work
-        )
+        ALARM, BLUETOOTH, EVENTS, WEATHER;
     }
 
     fun updateNow(
-        parts: Array<PartialUpdate> = arrayOf(
-            PartialUpdate.ALARM,
-            PartialUpdate.EVENTS,
-            PartialUpdate.WEATHER
-        )
+        parts: Array<PartialUpdate> = PartialUpdate.entries.toTypedArray()
     ) {
-        val data =
-            Data.Builder().putStringArray("parts", parts.map { it.name }.toTypedArray()).build()
-        val work = OneTimeWorkRequestBuilder<UpdateSpiffyState>().addTag(UpdateSpiffyState.TAG)
-            .setInitialDelay(Duration.ofSeconds(3)).setInputData(data).build()
+        val data = Data.Builder()
+            .putStringArray("parts", parts.map { it.name }.toTypedArray())
+            .build()
+
+        val work = OneTimeWorkRequestBuilder<WidgetWorker>()
+            .addTag(WidgetWorker.TAG)
+            .setInitialDelay(Duration.ofSeconds(3))
+            .setInputData(data)
+            .build()
 
         WorkManager.getInstance(context).enqueueUniqueWork(
-            "spiffy_refresh_now", ExistingWorkPolicy.APPEND, work
+            "spiffy_refresh_now",
+            ExistingWorkPolicy.APPEND,
+            work
+        )
+    }
+
+    fun scheduleUpdate() {
+        val work = PeriodicWorkRequestBuilder<WidgetWorker>(15, TimeUnit.MINUTES)
+            .addTag(WidgetWorker.TAG)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            "spiffy_refresh",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            work
         )
     }
 
     fun cancel() {
-        WorkManager.getInstance(context).cancelAllWorkByTag(UpdateSpiffyState.TAG)
+        WorkManager.getInstance(context).cancelAllWorkByTag(WidgetWorker.TAG)
     }
 }

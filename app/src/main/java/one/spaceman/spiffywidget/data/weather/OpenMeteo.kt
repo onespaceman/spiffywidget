@@ -82,14 +82,15 @@ object WeatherAdapter {
 
             val sunset = Instant.ofEpochSecond(response.daily.sunsetEpochSeconds.first())
             val sunrise = Instant.ofEpochSecond(response.daily.sunriseEpochSeconds.first())
-            val extra = if (ChronoUnit.HOURS.between(info.now, sunrise) in 1..2) {
+
+            val extra = if (info.now.until(sunrise, ChronoUnit.MINUTES) in -10..10800) {
                 "Sunrise at ${
                     formatTime(
                         LocalDateTime.ofInstant(sunrise, timezone)
                             .format(DateTimeFormatter.ofPattern("h:mma"))
                     )
                 }"
-            } else if (ChronoUnit.HOURS.between(info.now, sunset) in -21..99) {
+            } else if (info.now.until(sunset, ChronoUnit.MINUTES) in -10..10800) {
                 "Sunset at ${
                     formatTime(
                         LocalDateTime.ofInstant(sunset, timezone)

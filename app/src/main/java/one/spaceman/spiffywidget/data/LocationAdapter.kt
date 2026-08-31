@@ -3,7 +3,6 @@ package one.spaceman.spiffywidget.data
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import androidx.core.app.ActivityCompat
@@ -30,10 +29,10 @@ object LocationAdapter {
 
     fun geocode(
         context: Context, location: Location
-    ): Address? {
+    ): String {
         val address = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1)
         return if (!address.isNullOrEmpty()) {
-            address.first()
-        } else null
+            address.first().locality
+        } else ""
     }
 }

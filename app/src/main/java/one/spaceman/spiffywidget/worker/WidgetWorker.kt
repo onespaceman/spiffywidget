@@ -1,7 +1,9 @@
 package one.spaceman.spiffywidget.worker
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
@@ -22,7 +24,7 @@ import one.spaceman.spiffywidget.worker.WidgetWorkManager.PartialUpdate
 import kotlin.enums.enumEntries
 
 // Coroutine task to get/update widget state
-internal class UpdateSpiffyState(
+internal class WidgetWorker(
     private val context: Context, workParams: WorkerParameters
 ) : CoroutineWorker(context, workParams) {
 
@@ -32,10 +34,10 @@ internal class UpdateSpiffyState(
         const val TAG = "spiffy-worker"
     }
 
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     override suspend fun doWork(): Result {
         if (runAttemptCount >= MAXIMUM_RETRIES) return Result.failure()
-        val update = inputData.getStringArray("parts")?.toList()
-            ?: enumEntries<PartialUpdate>().map { it.name }
+        val update = inputData.getStringArray("parts")?.toList() ?: enumEntries<PartialUpdate>().map { it.name }
 
         return try {
             val info = SystemInfo()
@@ -43,19 +45,31 @@ internal class UpdateSpiffyState(
             val oldState = getWidgetState(glanceIds)
             var newState = oldState.copy()
 
+            val locationClient = LocationServices.getFusedLocationProviderClient(context)
+            val location = LocationAdapter.get(context, locationClient)
+            if (location != null && location.isComplete) {
+                val geocode = LocationAdapter.geocode(context, location)
+                newState = newState.copy(
+                    weather = newState.weather?.copy(
+                        location = geocode
+                    )
+                )
+            }
+
             if (update.contains("WEATHER")) {
                 if (oldState.weather == null || info.now.epochSecond - oldState.weather.lastUpdate > WEATHER_INTERVAL) {
                     val locationClient = LocationServices.getFusedLocationProviderClient(context)
                     val location = LocationAdapter.get(context, locationClient)
                     if (location != null && location.isComplete) {
+                        val geocode = LocationAdapter.geocode(context, location)
                         val weather = WeatherAdapter.getFormatedWeather(
                             context = context,
                             info = info,
                             latitude = location.latitude,
-                            longitude = location.longitude
+                            longitude = location.longitude,
                         )
                         if (weather != null) {
-                            newState = newState.copy(weather = weather)
+                            newState = newState.copy(weather = weather.copy(location = geocode))
                         }
                     }
                 }
@@ -73,7 +87,7 @@ internal class UpdateSpiffyState(
             Log.i("Spiffy Widget", "Updated Spiffy Widget with $update")
             Result.success()
         } catch (e: Exception) {
-            Log.e("Spiffy-Worker", "Failed to update Spiffy Widget" + e.message.toString())
+            Log.e("Spiffy-Worker", "Failed to update Spiffy Widget " + e.message.toString())
             Result.retry()
         }
     }
@@ -96,10 +110,7 @@ internal class UpdateSpiffyState(
     ) {
         glanceIds.forEach { glanceId ->
             updateAppWidgetState(
-                context = context,
-                definition = SpiffyWidgetStateDefinition,
-                glanceId = glanceId,
-                updateState = { newState })
+                context = context, definition = SpiffyWidgetStateDefinition, glanceId = glanceId, updateState = { newState })
         }
         SpiffyWidget().updateAll(context)
     }

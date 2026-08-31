@@ -25,4 +25,5 @@ data class Weather(
     val uvIndex: Int,
     val description: String,
     val extra: String,
+    val location: String = "",
 )

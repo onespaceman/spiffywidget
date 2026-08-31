@@ -35,8 +35,8 @@ fun DrawWeather(context: Context, weather: Weather?) {
     val intent = context.packageManager.getLaunchIntentForPackage("cz.ackee.ventusky")
 
     Column(
-        modifier = GlanceModifier.padding(bottom = 3.dp).fillMaxWidth()
-            .clickable { context.startActivity(intent) }, horizontalAlignment = Alignment.Start
+        modifier = GlanceModifier.padding(bottom = 3.dp).fillMaxWidth().clickable { context.startActivity(intent) },
+        horizontalAlignment = Alignment.Start
     ) {
         Row {
             Text(
@@ -49,8 +49,8 @@ fun DrawWeather(context: Context, weather: Weather?) {
                 text = weather.description.lowercase(), style = style
             )
             Text(
-                text = weather.extra, style = style.copy(
-                    fontSize = style.fontSize?.times(0.8), textAlign = TextAlign.End
+                text = weather.location, style = style.copy(
+                    fontSize = style.fontSize?.times(0.6), textAlign = TextAlign.End
                 ), modifier = GlanceModifier.fillMaxWidth()
             )
         }
@@ -58,7 +58,7 @@ fun DrawWeather(context: Context, weather: Weather?) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                modifier = GlanceModifier.size(20.dp),
+                modifier = GlanceModifier.size(15.dp),
                 provider = ImageProvider(R.drawable.down_arrow),
                 colorFilter = ColorFilter.tint(ColorProvider(R.color.blue)),
                 contentDescription = "down arrow",
@@ -71,7 +71,7 @@ fun DrawWeather(context: Context, weather: Weather?) {
                 ),
             )
             Image(
-                modifier = GlanceModifier.size(20.dp),
+                modifier = GlanceModifier.size(15.dp),
                 provider = ImageProvider(R.drawable.up_arrow),
                 colorFilter = ColorFilter.tint(ColorProvider(R.color.red)),
                 contentDescription = "up arrow",
@@ -93,6 +93,11 @@ fun DrawWeather(context: Context, weather: Weather?) {
                 text = "${weather.uvIndex} ", style = style.copy(
                     color = ColorProvider(R.color.yellow)
                 )
+            )
+            Text(
+                text = weather.extra, style = style.copy(
+                    fontSize = style.fontSize?.times(0.6), textAlign = TextAlign.End
+                ), modifier = GlanceModifier.fillMaxWidth()
             )
         }
     }
