@@ -79,8 +79,8 @@ internal class WidgetWorker(
                 newState = newState.copy(alarm = AlarmAdapter.get(context, info))
             }
 
-            if (update.contains("EVENTS")) {
-                newState = newState.copy(events = CalendarAdapter.get(context, info))
+            if (update.contains("CALENDAR")) {
+                newState = newState.copy(events = CalendarAdapter.get(context))
             }
 
             setWidgetState(glanceIds, newState)

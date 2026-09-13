@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -20,38 +21,49 @@ import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
+import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import one.spaceman.spiffywidget.R
 import one.spaceman.spiffywidget.state.Weather
-import one.spaceman.spiffywidget.theme.textStyle
 
 @SuppressLint("RestrictedApi")
 @Composable
 fun DrawWeather(context: Context, weather: Weather?) {
     if (weather == null) return
 
-    val style = textStyle.copy(color = GlanceTheme.colors.secondary)
-
+    val style = TextStyle(
+        color = GlanceTheme.colors.secondary,
+        fontSize = 18.sp,
+    )
     val intent = context.packageManager.getLaunchIntentForPackage("cz.ackee.ventusky")
 
     Column(
-        modifier = GlanceModifier.padding(bottom = 3.dp).fillMaxWidth().clickable { context.startActivity(intent) },
-        horizontalAlignment = Alignment.Start
+        modifier = GlanceModifier
+            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .fillMaxWidth()
+            .clickable { context.startActivity(intent) },
     ) {
-        Row {
+        Row(
+            modifier = GlanceModifier.padding(bottom = (-3).dp)
+        ) {
             Text(
-                text = "${weather.temperature}°", style = style.copy(
-                    fontSize = textStyle.fontSize?.times(1.4),
+                text = "${weather.temperature}°",
+                style = style.copy(
+                    fontSize = style.fontSize?.times(1.4),
                     fontWeight = FontWeight.Bold,
-                ), modifier = GlanceModifier.padding(end = 10.dp)
+                ),
+                modifier = GlanceModifier.padding(end = 10.dp)
             )
             Text(
                 text = weather.description.lowercase(), style = style
             )
             Text(
-                text = weather.location, style = style.copy(
-                    fontSize = style.fontSize?.times(0.6), textAlign = TextAlign.End
-                ), modifier = GlanceModifier.fillMaxWidth()
+                text = weather.location,
+                style = style.copy(
+                    fontSize = style.fontSize?.times(0.6),
+                    textAlign = TextAlign.End
+                ),
+                modifier = GlanceModifier.fillMaxWidth()
             )
         }
         Row(
@@ -66,9 +78,7 @@ fun DrawWeather(context: Context, weather: Weather?) {
             )
             Text(
                 text = "${weather.temperatureLow}° ",
-                style = style.copy(
-                    color = ColorProvider(resId = R.color.blue),
-                ),
+                style = style.copy(color = ColorProvider(resId = R.color.blue)),
             )
             Image(
                 modifier = GlanceModifier.size(15.dp),
@@ -90,14 +100,16 @@ fun DrawWeather(context: Context, weather: Weather?) {
                 contentScale = ContentScale.Fit
             )
             Text(
-                text = "${weather.uvIndex} ", style = style.copy(
-                    color = ColorProvider(R.color.yellow)
-                )
+                text = "${weather.uvIndex} ",
+                style = style.copy(color = ColorProvider(R.color.yellow))
             )
             Text(
-                text = weather.extra, style = style.copy(
-                    fontSize = style.fontSize?.times(0.6), textAlign = TextAlign.End
-                ), modifier = GlanceModifier.fillMaxWidth()
+                text = weather.extra,
+                style = style.copy(
+                    fontSize = style.fontSize?.times(0.6),
+                    textAlign = TextAlign.End
+                ),
+                modifier = GlanceModifier.fillMaxWidth()
             )
         }
     }

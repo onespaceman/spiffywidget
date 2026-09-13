@@ -1,5 +1,6 @@
 package one.spaceman.spiffywidget
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -22,12 +23,12 @@ import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.layout.wrapContentHeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import one.spaceman.spiffywidget.components.DrawAlarm
+import one.spaceman.spiffywidget.components.DrawCalendar
 import one.spaceman.spiffywidget.components.DrawClock
-import one.spaceman.spiffywidget.components.DrawEvents
 import one.spaceman.spiffywidget.components.DrawWeather
 import one.spaceman.spiffywidget.state.SpiffyWidgetState
 import one.spaceman.spiffywidget.state.SpiffyWidgetStateDefinition
@@ -72,6 +73,7 @@ class SpiffyWidget : GlanceAppWidget() {
 
     override val stateDefinition = SpiffyWidgetStateDefinition
 
+    @SuppressLint("RestrictedApi")
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
         provideContent {
@@ -82,28 +84,31 @@ class SpiffyWidget : GlanceAppWidget() {
                     contentAlignment = Alignment.BottomCenter,
                 ) {
                     Column(
-                        modifier = GlanceModifier.fillMaxWidth().background(GlanceTheme.colors.primaryContainer.getColor(context).copy(alpha = 0.15F))
-                            .padding(vertical = 5.dp, horizontal = 10.dp).cornerRadius(15.dp),
+                        modifier = GlanceModifier
+                            .fillMaxWidth()
+                            .background(GlanceTheme.colors.primaryContainer.getColor(context).copy(alpha = 0.6f))
+                            .padding(vertical = 15.dp, horizontal = 10.dp)
+                            .cornerRadius(15.dp),
                         verticalAlignment = Alignment.Bottom,
                         horizontalAlignment = Alignment.Start,
                     ) {
-                        DrawClock(context)
+                        DrawClock(context, state.alarm)
+                        DrawCalendar(context, state.events)
                         DrawWeather(context, state.weather)
-                        DrawEvents(context, state.events)
-                        DrawAlarm(context, state.alarm)
                     }
                 }
                 // Secret update button
                 Box(
-                    modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.TopEnd
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    contentAlignment = Alignment.TopCenter
                 ) {
                     Text(
-                        modifier = GlanceModifier.clickable {
+                        modifier = GlanceModifier.wrapContentHeight().clickable {
                             WidgetWorkManager(context).updateNow()
                         },
-                        text = "● ",
+                        text = " ⬤ ",
                         style = TextStyle(
-                            fontSize = 50.sp, color = ColorProvider(resId = R.color.hidden)
+                            fontSize = 30.sp, color = ColorProvider(resId = R.color.hidden)
                         ),
                     )
                 }

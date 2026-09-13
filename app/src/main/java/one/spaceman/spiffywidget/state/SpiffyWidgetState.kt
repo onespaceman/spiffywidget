@@ -13,7 +13,10 @@ data class SpiffyWidgetState(
 data class CalendarEvent(
     val id: Long,
     val title: String,
-    val date: String,
+    val start: Long,
+    val end: Long,
+    val dateString: String,
+    val color: Int?,
 )
 
 @Serializable

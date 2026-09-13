@@ -11,13 +11,10 @@ import androidx.core.database.getStringOrNull
 import one.spaceman.spiffywidget.state.CalendarEvent
 import one.spaceman.spiffywidget.theme.formatTime
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.SortedSet
-
+import kotlin.collections.mutableListOf
 
 internal val EVENT_PROJECTION = arrayOf(
     CalendarContract.Events._ID,
@@ -36,8 +33,8 @@ internal data class EventItem(
     val title: String?,
     val eventLocation: String?,
     val status: Int?,
-    val dtStart: Instant?,
-    val dtEnd: Instant?,
+    val start: Instant,
+    val end: Instant,
     val allDay: Boolean?,
     val displayColor: Int?,
 )
@@ -48,33 +45,33 @@ object CalendarAdapter {
     ): Set<EventItem> {
         val events: MutableSet<EventItem> = HashSet()
         val uri = CalendarContract.Events.CONTENT_URI
-        val begin = now.toEpochMilli()
-        val end = begin.plus(604800000) // 1 Week
+        val from = now.toEpochMilli()
+        val to = now.plus(7, ChronoUnit.DAYS).toEpochMilli()
 
         try {
             val cur = context.contentResolver.query(
                 uri,
                 EVENT_PROJECTION,
                 "(${CalendarContract.Events.DTSTART} >= ? AND ${CalendarContract.Events.DTSTART} <= ?) OR (${CalendarContract.Events.DTSTART} <= ? AND ${CalendarContract.Events.DTEND} >= ?)",
-                arrayOf(begin.toString(), end.toString(), begin.toString(), begin.toString()),
+                arrayOf(from.toString(), to.toString(), from.toString(), from.toString()),
                 null
             )
 
             while (cur?.moveToNext() == true) {
-                val dtStart = cur.getLongOrNull(4)
-                val dtEnd = cur.getLongOrNull(5)
+                val start = cur.getLongOrNull(4)
+                val end = cur.getLongOrNull(5)
                 val allDay = cur.getIntOrNull(6) == 1
                 val visible = cur.getIntOrNull(8) == 1
 
-                if (visible && dtStart != null && dtEnd != null) {
+                if (visible && start != null && end != null) {
                     events.add(
                         EventItem(
                             id = cur.getLong(0),
                             title = cur.getStringOrNull(1),
                             eventLocation = cur.getStringOrNull(2),
                             status = cur.getIntOrNull(3),
-                            dtStart = Instant.ofEpochMilli(dtStart),
-                            dtEnd = Instant.ofEpochMilli(dtEnd),
+                            start = Instant.ofEpochMilli(start),
+                            end = Instant.ofEpochMilli(end),
                             allDay = allDay,
                             displayColor = cur.getIntOrNull(7),
                         )
@@ -83,79 +80,40 @@ object CalendarAdapter {
             }
             cur?.close()
 
-            return filterEvents(events.toSortedSet(compareBy { it.dtStart }), now)
+            return events.toSortedSet(compareBy { it.start })
         } catch (_: Exception) {
             return events
         }
     }
 
-    private fun filterEvents(
-        events: SortedSet<EventItem>, now: Instant
-    ): SortedSet<EventItem> {
-        if (events.isNotEmpty()) {
-            val firstEventDay = if (events.first().dtStart!! >= now) {
-                events.first().dtStart!!.truncatedTo(ChronoUnit.DAYS)
+    // Format event date for display
+    private fun getDateString(event: EventItem): String {
+        val now = Instant.now()
+
+        return if (event.allDay == true) {
+            // Format all day events
+            if (now > event.start) {
+                "Today"
+            } else if (now > event.start.plus(1, ChronoUnit.DAYS)) {
+                "Tomorrow"
             } else {
-                now.truncatedTo(ChronoUnit.DAYS)
+                DateTimeFormatter.ofPattern("MMM d").withZone(ZoneId.systemDefault()).format(event.start)
             }
-
-            events.removeIf { it.dtStart!! >= firstEventDay.plus(48L, ChronoUnit.HOURS) }
-        }
-        return events
-    }
-
-    private fun formatEvent(
-        event: EventItem, info: SystemInfo
-    ): String {
-        var dateString = ""
-        val localNow = ZonedDateTime.ofInstant(info.now, info.timeZone.toZoneId())
-        val start = ZonedDateTime.ofInstant(event.dtStart, info.timeZone.toZoneId())
-        // val end = ZonedDateTime.ofInstant(event.dtEnd, info.timeZone.id)
-
-        dateString += if (start <= localNow) {
-            "Now"
-        } else if (localNow.truncatedTo(ChronoUnit.DAYS) == start.truncatedTo(ChronoUnit.DAYS)) {
-            formatTime(
-                DateTimeFormatter.ofPattern("h:mma").format(start)
-            )
-        } else if (localNow.truncatedTo(ChronoUnit.DAYS).plusDays(1L) == start.truncatedTo(
-                ChronoUnit.DAYS
-            )
-        ) {
-            formatTime(
-                "Tomorrow at " + DateTimeFormatter.ofPattern("h:mm a").format(start)
-            )
         } else {
-            DateTimeFormatter.ofPattern("MMM d").format(start) + " at " + formatTime(
-                DateTimeFormatter.ofPattern("h:mma").format(start)
-            )
+            // Format regular events
+            if (now > event.start) {
+                "Now"
+            } else if (now.plus(1, ChronoUnit.DAYS) > event.start) {
+                DateTimeFormatter.ofPattern("h:mma").withZone(ZoneId.systemDefault()).format(event.start)
+            } else if (now.plus(2, ChronoUnit.DAYS) > event.start) {
+                formatTime(DateTimeFormatter.ofPattern("'Tomorrow at' h:mm a").withZone(ZoneId.systemDefault()).format(event.start))
+            } else {
+                formatTime(DateTimeFormatter.ofPattern("MMM d 'at' h:mma").withZone(ZoneId.systemDefault()).format(event.start))
+            }
         }
-
-        return dateString
     }
 
-    private fun formatAllDay(
-        event: EventItem, info: SystemInfo
-    ): String {
-        var dateString = ""
-        val localNow = LocalDateTime.ofInstant(info.now, info.timeZone.toZoneId()).toLocalDate()
-        val start = LocalDateTime.ofInstant(event.dtStart, ZoneId.of("Etc/UTC")).toLocalDate()
-        // val end = LocalDateTime.ofInstant(event.dtStart, ZoneId.of("Etc/UTC")).toLocalDate()
-
-        dateString += if (start <= localNow) {
-            "Today"
-        } else if (start <= localNow.plusDays(1L)) {
-            "Tomorrow"
-        } else {
-            DateTimeFormatter.ofPattern("MMM d").format(start)
-        }
-        return dateString
-    }
-
-    fun get(
-        context: Context,
-        info: SystemInfo,
-    ): List<CalendarEvent> {
+    fun get(context: Context): List<CalendarEvent> {
         val widgetEvents = mutableListOf<CalendarEvent>()
 
         if (ActivityCompat.checkSelfPermission(
@@ -163,20 +121,16 @@ object CalendarAdapter {
                 Manifest.permission.READ_CALENDAR,
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            val events = getEvents(context, info.now)
+            val events = getEvents(context, Instant.now())
             events.forEach {
-                val dateString = if (it.allDay == true) {
-                    formatAllDay(it, info)
-                } else {
-                    formatEvent(it, info)
-                }
-
                 widgetEvents.add(
                     CalendarEvent(
-                        id = it.dtStart?.toEpochMilli() ?: info.now.epochSecond,
+                        id = it.id,
                         title = it.title.toString(),
-                        date = dateString,
-//                        color = it.displayColor
+                        start = it.start.toEpochMilli(),
+                        end = it.end.toEpochMilli(),
+                        dateString = getDateString(it),
+                        color = it.displayColor,
                     )
                 )
             }

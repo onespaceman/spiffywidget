@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 class WidgetWorkManager(private val context: Context) {
     enum class PartialUpdate {
-        ALARM, BLUETOOTH, EVENTS, WEATHER;
+        ALARM, BLUETOOTH, CALENDAR, WEATHER;
     }
 
     fun updateNow(
@@ -30,7 +30,7 @@ class WidgetWorkManager(private val context: Context) {
 
         WorkManager.getInstance(context).enqueueUniqueWork(
             "spiffy_refresh_now",
-            ExistingWorkPolicy.APPEND,
+            ExistingWorkPolicy.APPEND_OR_REPLACE,
             work
         )
     }
