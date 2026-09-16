@@ -9,12 +9,8 @@ import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import one.spaceman.spiffywidget.state.CalendarEvent
-import one.spaceman.spiffywidget.theme.formatTime
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import kotlin.collections.mutableListOf
 
 internal val EVENT_PROJECTION = arrayOf(
     CalendarContract.Events._ID,
@@ -33,9 +29,9 @@ internal data class EventItem(
     val title: String?,
     val eventLocation: String?,
     val status: Int?,
-    val start: Instant,
-    val end: Instant,
-    val allDay: Boolean?,
+    val start: Long,
+    val end: Long,
+    val allDay: Boolean,
     val displayColor: Int?,
 )
 
@@ -70,8 +66,8 @@ object CalendarAdapter {
                             title = cur.getStringOrNull(1),
                             eventLocation = cur.getStringOrNull(2),
                             status = cur.getIntOrNull(3),
-                            start = Instant.ofEpochMilli(start),
-                            end = Instant.ofEpochMilli(end),
+                            start = start,
+                            end = end,
                             allDay = allDay,
                             displayColor = cur.getIntOrNull(7),
                         )
@@ -83,33 +79,6 @@ object CalendarAdapter {
             return events.toSortedSet(compareBy { it.start })
         } catch (_: Exception) {
             return events
-        }
-    }
-
-    // Format event date for display
-    private fun getDateString(event: EventItem): String {
-        val now = Instant.now()
-
-        return if (event.allDay == true) {
-            // Format all day events
-            if (now > event.start) {
-                "Today"
-            } else if (now > event.start.plus(1, ChronoUnit.DAYS)) {
-                "Tomorrow"
-            } else {
-                DateTimeFormatter.ofPattern("MMM d").withZone(ZoneId.systemDefault()).format(event.start)
-            }
-        } else {
-            // Format regular events
-            if (now > event.start) {
-                "Now"
-            } else if (now.plus(1, ChronoUnit.DAYS) > event.start) {
-                DateTimeFormatter.ofPattern("h:mma").withZone(ZoneId.systemDefault()).format(event.start)
-            } else if (now.plus(2, ChronoUnit.DAYS) > event.start) {
-                formatTime(DateTimeFormatter.ofPattern("'Tomorrow at' h:mm a").withZone(ZoneId.systemDefault()).format(event.start))
-            } else {
-                formatTime(DateTimeFormatter.ofPattern("MMM d 'at' h:mma").withZone(ZoneId.systemDefault()).format(event.start))
-            }
         }
     }
 
@@ -127,9 +96,9 @@ object CalendarAdapter {
                     CalendarEvent(
                         id = it.id,
                         title = it.title.toString(),
-                        start = it.start.toEpochMilli(),
-                        end = it.end.toEpochMilli(),
-                        dateString = getDateString(it),
+                        allDay = it.allDay,
+                        start = it.start,
+                        end = it.end,
                         color = it.displayColor,
                     )
                 )

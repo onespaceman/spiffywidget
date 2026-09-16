@@ -4,10 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
@@ -28,18 +26,18 @@ import one.spaceman.spiffywidget.state.Weather
 
 @SuppressLint("RestrictedApi")
 @Composable
-fun DrawWeather(context: Context, weather: Weather?) {
+fun DrawWeather(
+    context: Context,
+    weather: Weather?,
+    style: TextStyle
+) {
     if (weather == null) return
 
-    val style = TextStyle(
-        color = GlanceTheme.colors.secondary,
-        fontSize = 18.sp,
-    )
     val intent = context.packageManager.getLaunchIntentForPackage("cz.ackee.ventusky")
 
     Column(
         modifier = GlanceModifier
-            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .padding(horizontal = 10.dp)
             .fillMaxWidth()
             .clickable { context.startActivity(intent) },
     ) {
@@ -52,15 +50,16 @@ fun DrawWeather(context: Context, weather: Weather?) {
                     fontSize = style.fontSize?.times(1.4),
                     fontWeight = FontWeight.Bold,
                 ),
-                modifier = GlanceModifier.padding(end = 10.dp)
+                modifier = GlanceModifier.padding(end = 7.dp)
             )
             Text(
-                text = weather.description.lowercase(), style = style
+                text = weather.description.lowercase(),
+                style = style
             )
             Text(
                 text = weather.location,
                 style = style.copy(
-                    fontSize = style.fontSize?.times(0.6),
+                    fontSize = style.fontSize?.times(0.65),
                     textAlign = TextAlign.End
                 ),
                 modifier = GlanceModifier.fillMaxWidth()
@@ -106,7 +105,7 @@ fun DrawWeather(context: Context, weather: Weather?) {
             Text(
                 text = weather.extra,
                 style = style.copy(
-                    fontSize = style.fontSize?.times(0.6),
+                    fontSize = style.fontSize?.times(0.7),
                     textAlign = TextAlign.End
                 ),
                 modifier = GlanceModifier.fillMaxWidth()

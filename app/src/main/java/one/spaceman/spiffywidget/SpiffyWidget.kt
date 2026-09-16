@@ -15,13 +15,14 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
-import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.wrapContentHeight
 import androidx.glance.text.Text
@@ -79,6 +80,11 @@ class SpiffyWidget : GlanceAppWidget() {
         provideContent {
             GlanceTheme {
                 val state = currentState<SpiffyWidgetState>()
+                // default text style
+                val style = TextStyle(
+                    color = GlanceTheme.colors.onSecondaryContainer,
+                    fontSize = 18.sp,
+                )
                 Box(
                     modifier = GlanceModifier.fillMaxSize().padding(vertical = 2.dp),
                     contentAlignment = Alignment.BottomCenter,
@@ -86,15 +92,17 @@ class SpiffyWidget : GlanceAppWidget() {
                     Column(
                         modifier = GlanceModifier
                             .fillMaxWidth()
-                            .background(GlanceTheme.colors.primaryContainer.getColor(context).copy(alpha = 0.6f))
+//                            .background(GlanceTheme.colors.primaryContainer.getColor(context).copy(alpha = 0.6f))
                             .padding(vertical = 15.dp, horizontal = 10.dp)
                             .cornerRadius(15.dp),
                         verticalAlignment = Alignment.Bottom,
                         horizontalAlignment = Alignment.Start,
                     ) {
-                        DrawClock(context, state.alarm)
-                        DrawCalendar(context, state.events)
-                        DrawWeather(context, state.weather)
+                        DrawClock(context, style)
+                        Spacer(GlanceModifier.height(20.dp))
+                        DrawWeather(context, state.weather, style)
+                        Spacer(GlanceModifier.height(20.dp))
+                        DrawCalendar(context, state.events, state.alarm, style)
                     }
                 }
                 // Secret update button
