@@ -23,38 +23,46 @@ data class OpenMeteoDaily(
 
 @Serializable
 data class OpenMeteoCurrent(
-    @SerialName("is_day") val isDay: Int, @SerialName("temperature_2m") val temperature: Double
+    @SerialName("is_day")val isDay: Int,
+    @SerialName("temperature_2m") val temperature: Double
 )
 
-enum class WeatherStates(
-    val description: String,
+enum class WeatherCodes(
+    val code: Int,
+    val label: String
 ) {
-    CODE_0("Clear Skies"),
-    CODE_1("Mostly Clear"),
-    CODE_2("Partly Cloudy"),
-    CODE_3("Overcast"),
-    CODE_45("Foggy"),
-    CODE_48("Foggy"),
-    CODE_51("Light Drizzle"),
-    CODE_53("Drizzle"),
-    CODE_55("Heavy Drizzle"),
-    CODE_56("Freezing Drizzle"),
-    CODE_57("Heavy Freezing Drizzle"),
-    CODE_61("Light Rain"),
-    CODE_63("Rainy"),
-    CODE_65("Heavy Rain"),
-    CODE_66("Freezing Rain"),
-    CODE_67("Heavy Freezing Rain"),
-    CODE_71("Light Snow"),
-    CODE_73("Snowy"),
-    CODE_75("Heavy Snow"),
-    CODE_77("Snowy"),
-    CODE_80("Light Showers"),
-    CODE_81("Showers"),
-    CODE_82("Heavy Showers"),
-    CODE_85("Snowy"),
-    CODE_86("Heavy Snow"),
-    CODE_95("Thunderstorms"),
-    CODE_96("Hail"),
-    CODE_99("Heavy Hail");
+    CLEAR_SKIES(0, "Clear Skies"),
+    MOSTLY_CLEAR(1, "Mostly Clear"),
+    PARTLY_CLOUDY(2, "Partly Cloudy"),
+    OVERCAST(3, "Overcast"),
+    FOGGY(45, "Foggy"),
+    RIME_FOG(48, "Rime Fog"),
+    LIGHT_DRIZZLE(51, "Light Drizzle"),
+    DRIZZLE(53, "Drizzle"),
+    HEAVY_DRIZZLE(55, "Heavy Drizzle"),
+    FREEZING_DRIZZLE(56, "Freezing Drizzle"),
+    HEAVY_FREEZING_DRIZZLE(57, "Heavy Freezing Drizzle"),
+    LIGHT_RAIN(67, "Light Rain"),
+    RAINY(63, "Rainy"),
+    HEAVY_RAIN(65, "Heavy Rain"),
+    FREEZING_RAIN(66, "Freezing Rain"),
+    HEAVY_FREEZING_RAIN(67, "Heavy Freezing Rain"),
+    LIGHT_SNOW(71, "Light Snow"),
+    SNOWY(73, "Snowy"),
+    HEAVY_SNOW(75, "Heavy Snow"),
+    SNOW_GRAINS(77, "Light Snow"),
+    LIGHT_SHOWERS(80, "Light Showers"),
+    SHOWERS(81, "Showers"),
+    HEAVY_SHOWERS(82, "Heavy Showers"),
+    SNOW_SHOWERS(85, "Snowy"),
+    HEAVY_SNOW_SHOWERS(86, "Heavy Snow"),
+    THUNDERSTORMS(95, "Thunderstorms"),
+    HAIL(96, "Hail"),
+    HEAVY_HAIL(99, "Heavy Hail"),
+    UNKNOWN(-1, "");
+
+    companion object {
+        private val byCode = entries.associateBy(WeatherCodes::code)
+        fun fromCode(code: Int): WeatherCodes = byCode[code] ?: UNKNOWN
+    }
 }

@@ -1,4 +1,4 @@
-package one.spaceman.spiffywidget
+package one.spaceman.spiffywidget.widget
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -19,22 +19,22 @@ import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
-import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
-import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.wrapContentHeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import one.spaceman.spiffywidget.components.DrawCalendar
-import one.spaceman.spiffywidget.components.DrawClock
-import one.spaceman.spiffywidget.components.DrawWeather
+import one.spaceman.spiffywidget.R
 import one.spaceman.spiffywidget.state.SpiffyWidgetState
 import one.spaceman.spiffywidget.state.SpiffyWidgetStateDefinition
+import one.spaceman.spiffywidget.ui.theme.GlanceTypography
+import one.spaceman.spiffywidget.widget.components.DrawAlarm
+import one.spaceman.spiffywidget.widget.components.DrawCalendar
+import one.spaceman.spiffywidget.widget.components.DrawClock
+import one.spaceman.spiffywidget.widget.components.DrawWeather
 import one.spaceman.spiffywidget.worker.WidgetWorkManager
-import one.spaceman.spiffywidget.worker.WidgetWorkManager.PartialUpdate
 
 class SpiffyWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SpiffyWidget()
@@ -47,7 +47,7 @@ class SpiffyWidgetReceiver : GlanceAppWidgetReceiver() {
             }
 
             AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED -> {
-                WidgetWorkManager(context).updateNow(arrayOf(PartialUpdate.ALARM))
+                WidgetWorkManager(context).updateNow(arrayOf(WidgetWorkManager.PartialUpdate.ALARM))
             }
         }
     }
@@ -81,28 +81,24 @@ class SpiffyWidget : GlanceAppWidget() {
             GlanceTheme {
                 val state = currentState<SpiffyWidgetState>()
                 // default text style
-                val style = TextStyle(
-                    color = GlanceTheme.colors.onSecondaryContainer,
-                    fontSize = 18.sp,
-                )
+                val style = GlanceTypography(GlanceTheme.colors.onSecondaryContainer, 18.sp)
                 Box(
-                    modifier = GlanceModifier.fillMaxSize().padding(vertical = 2.dp),
+                    modifier = GlanceModifier
+                        .fillMaxSize()
+                        .padding(8.dp),
                     contentAlignment = Alignment.BottomCenter,
                 ) {
                     Column(
                         modifier = GlanceModifier
                             .fillMaxWidth()
-//                            .background(GlanceTheme.colors.primaryContainer.getColor(context).copy(alpha = 0.6f))
-                            .padding(vertical = 15.dp, horizontal = 10.dp)
                             .cornerRadius(15.dp),
                         verticalAlignment = Alignment.Bottom,
                         horizontalAlignment = Alignment.Start,
                     ) {
-                        DrawClock(context, style)
-                        Spacer(GlanceModifier.height(20.dp))
-                        DrawWeather(context, state.weather, style)
-                        Spacer(GlanceModifier.height(20.dp))
-                        DrawCalendar(context, state.events, state.alarm, style)
+                        DrawAlarm(context, style, state.alarm)
+                        DrawClock(context, style, state.settings.homeTimeZone)
+                        DrawWeather(context, style, state.weather, state.settings.weatherApp)
+                        DrawCalendar(context, style, state.events, state.alarm)
                     }
                 }
                 // Secret update button

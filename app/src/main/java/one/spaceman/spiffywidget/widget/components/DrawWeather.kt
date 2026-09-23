@@ -1,4 +1,4 @@
-package one.spaceman.spiffywidget.components
+package one.spaceman.spiffywidget.widget.components
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -19,26 +19,29 @@ import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
-import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import one.spaceman.spiffywidget.R
 import one.spaceman.spiffywidget.state.Weather
+import one.spaceman.spiffywidget.ui.theme.GlanceTypography
 
 @SuppressLint("RestrictedApi")
 @Composable
 fun DrawWeather(
     context: Context,
+    style: GlanceTypography,
     weather: Weather?,
-    style: TextStyle
+    weatherApp: String?,
 ) {
     if (weather == null) return
 
-    val intent = context.packageManager.getLaunchIntentForPackage("cz.ackee.ventusky")
+    val intent = if(!weatherApp.isNullOrEmpty()) {
+        context.packageManager.getLaunchIntentForPackage(weatherApp)
+    } else null
 
     Column(
         modifier = GlanceModifier
-            .padding(horizontal = 10.dp)
             .fillMaxWidth()
+            .padding(vertical = 5.dp)
             .clickable { context.startActivity(intent) },
     ) {
         Row(
@@ -46,22 +49,16 @@ fun DrawWeather(
         ) {
             Text(
                 text = "${weather.temperature}°",
-                style = style.copy(
-                    fontSize = style.fontSize?.times(1.4),
-                    fontWeight = FontWeight.Bold,
-                ),
+                style = style.copy(fontWeight = FontWeight.Bold).largeType,
                 modifier = GlanceModifier.padding(end = 7.dp)
             )
             Text(
-                text = weather.description.lowercase(),
-                style = style
+                text = weather.code.label.lowercase(),
+                style = style.regularType
             )
             Text(
                 text = weather.location,
-                style = style.copy(
-                    fontSize = style.fontSize?.times(0.65),
-                    textAlign = TextAlign.End
-                ),
+                style = style.copy(textAlign = TextAlign.End).smallType,
                 modifier = GlanceModifier.fillMaxWidth()
             )
         }
@@ -77,7 +74,7 @@ fun DrawWeather(
             )
             Text(
                 text = "${weather.temperatureLow}° ",
-                style = style.copy(color = ColorProvider(resId = R.color.blue)),
+                style = style.copy(color = ColorProvider(resId = R.color.blue)).regularType,
             )
             Image(
                 modifier = GlanceModifier.size(15.dp),
@@ -87,9 +84,8 @@ fun DrawWeather(
                 contentScale = ContentScale.Fit
             )
             Text(
-                text = "${weather.temperatureHigh}° ", style = style.copy(
-                    color = ColorProvider(resId = R.color.red),
-                )
+                text = "${weather.temperatureHigh}° ",
+                style = style.copy(color = ColorProvider(resId = R.color.red)).regularType
             )
             Image(
                 modifier = GlanceModifier.size(20.dp),
@@ -100,14 +96,11 @@ fun DrawWeather(
             )
             Text(
                 text = "${weather.uvIndex} ",
-                style = style.copy(color = ColorProvider(R.color.yellow))
+                style = style.copy(color = ColorProvider(R.color.yellow)).regularType
             )
             Text(
                 text = weather.extra,
-                style = style.copy(
-                    fontSize = style.fontSize?.times(0.7),
-                    textAlign = TextAlign.End
-                ),
+                style = style.copy(textAlign = TextAlign.End).smallType,
                 modifier = GlanceModifier.fillMaxWidth()
             )
         }

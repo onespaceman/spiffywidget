@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Spiffy Widget</string>
+    <string name="title_activity_spiffy_configuration">SpiffyConfigurationActivity</string>
 </resources>

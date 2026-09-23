@@ -12,7 +12,6 @@ import androidx.glance.appwidget.updateAll
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.android.gms.location.LocationServices
-import one.spaceman.spiffywidget.SpiffyWidget
 import one.spaceman.spiffywidget.data.AlarmAdapter
 import one.spaceman.spiffywidget.data.CalendarAdapter
 import one.spaceman.spiffywidget.data.LocationAdapter
@@ -20,6 +19,7 @@ import one.spaceman.spiffywidget.data.SystemInfo
 import one.spaceman.spiffywidget.data.weather.WeatherAdapter
 import one.spaceman.spiffywidget.state.SpiffyWidgetState
 import one.spaceman.spiffywidget.state.SpiffyWidgetStateDefinition
+import one.spaceman.spiffywidget.widget.SpiffyWidget
 import one.spaceman.spiffywidget.worker.WidgetWorkManager.PartialUpdate
 import kotlin.enums.enumEntries
 
@@ -42,22 +42,11 @@ internal class WidgetWorker(
         return try {
             val info = SystemInfo()
             val glanceIds = getGlanceIds()
-            val oldState = getWidgetState(glanceIds)
-            var newState = oldState.copy()
-
-            val locationClient = LocationServices.getFusedLocationProviderClient(context)
-            val location = LocationAdapter.get(context, locationClient)
-            if (location != null && location.isComplete) {
-                val geocode = LocationAdapter.geocode(context, location)
-                newState = newState.copy(
-                    weather = newState.weather?.copy(
-                        location = geocode
-                    )
-                )
-            }
+            var state = getWidgetState(glanceIds)
 
             if (update.contains("WEATHER")) {
-                if (oldState.weather == null || info.now.epochSecond - oldState.weather.lastUpdate > WEATHER_INTERVAL) {
+                val lastUpdate = state.weather?.lastUpdate
+                if (lastUpdate == null || info.now.epochSecond - lastUpdate > WEATHER_INTERVAL) {
                     val locationClient = LocationServices.getFusedLocationProviderClient(context)
                     val location = LocationAdapter.get(context, locationClient)
                     if (location != null && location.isComplete) {
@@ -67,23 +56,27 @@ internal class WidgetWorker(
                             info = info,
                             latitude = location.latitude,
                             longitude = location.longitude,
-                        )
+                            )
                         if (weather != null) {
-                            newState = newState.copy(weather = weather.copy(location = geocode))
+                            state = state.copy(
+                                weather = weather.copy(
+                                    location = geocode
+                                )
+                            )
                         }
                     }
                 }
             }
 
             if (update.contains("ALARM")) {
-                newState = newState.copy(alarm = AlarmAdapter.get(context, info))
+                state = state.copy(alarm = AlarmAdapter.get(context))
             }
 
             if (update.contains("CALENDAR")) {
-                newState = newState.copy(events = CalendarAdapter.get(context))
+                state = state.copy(events = CalendarAdapter.get(context))
             }
 
-            setWidgetState(glanceIds, newState)
+            setWidgetState(glanceIds, state)
             Log.i("Spiffy Widget", "Updated Spiffy Widget with $update")
             Result.success()
         } catch (e: Exception) {
@@ -110,7 +103,11 @@ internal class WidgetWorker(
     ) {
         glanceIds.forEach { glanceId ->
             updateAppWidgetState(
-                context = context, definition = SpiffyWidgetStateDefinition, glanceId = glanceId, updateState = { newState })
+                context = context,
+                definition = SpiffyWidgetStateDefinition,
+                glanceId = glanceId,
+                updateState = { newState }
+            )
         }
         SpiffyWidget().updateAll(context)
     }

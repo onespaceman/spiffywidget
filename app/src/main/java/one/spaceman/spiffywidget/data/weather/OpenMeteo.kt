@@ -20,7 +20,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import one.spaceman.spiffywidget.data.SystemInfo
 import one.spaceman.spiffywidget.state.Weather
-import one.spaceman.spiffywidget.theme.formatTime
+import one.spaceman.spiffywidget.ui.theme.formatTime
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -106,7 +106,7 @@ object WeatherAdapter {
                 temperatureHigh = response.daily.temperatureMax.first().roundToInt(),
                 uvIndex = response.daily.uvIndex.first().roundToInt(),
                 extra = extra,
-                description = WeatherStates.valueOf("CODE_${response.daily.weatherCode.first()}").description,
+                code = WeatherCodes.fromCode(response.daily.weatherCode.first()),
             )
         } catch (e: Exception) {
             Log.e("OpenMeteo-Response", e.message.toString())

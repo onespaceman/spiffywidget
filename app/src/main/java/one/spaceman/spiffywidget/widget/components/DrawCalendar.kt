@@ -1,42 +1,39 @@
-package one.spaceman.spiffywidget.components
+package one.spaceman.spiffywidget.widget.components
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
-import android.provider.AlarmClock
 import android.provider.CalendarContract
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.Image
-import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
-import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
-import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
-import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import one.spaceman.spiffywidget.R
 import one.spaceman.spiffywidget.state.CalendarEvent
-import one.spaceman.spiffywidget.theme.formatTime
+import one.spaceman.spiffywidget.ui.theme.GlanceTypography
+import one.spaceman.spiffywidget.ui.theme.formatTime
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -47,49 +44,16 @@ import java.util.Locale
 @Composable
 fun DrawCalendar(
     context: Context,
-    events: List<CalendarEvent>?,
+    style: GlanceTypography,
+    events: List<CalendarEvent>,
     alarm: String?,
-    style: TextStyle,
 ) {
-
     // Week View
     val date = ZonedDateTime.now()
 
-    Column(GlanceModifier.padding(horizontal = 10.dp)) {
-        Row(
-            modifier = GlanceModifier.padding(bottom = 5.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                modifier = GlanceModifier.defaultWeight(),
-                text = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMMM d")).uppercase(),
-                style = style.copy(fontSize = style.fontSize?.times(1.2)),
-            )
-
-            // Draw next alarm
-            if (!alarm.isNullOrEmpty()) {
-                Row(
-                    modifier = GlanceModifier.defaultWeight().clickable {
-                        context.startActivity(Intent(AlarmClock.ACTION_SHOW_ALARMS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                    },
-                    horizontalAlignment = Alignment.End,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Image(
-                        modifier = GlanceModifier.padding(end = 3.dp).size(style.fontSize!!.value.dp),
-                        provider = ImageProvider(R.drawable.baseline_alarm_24),
-                        colorFilter = ColorFilter.tint(GlanceTheme.colors.tertiary),
-                        contentDescription = "Alarm",
-                        contentScale = ContentScale.Fit,
-                    )
-                    Text(
-                        text = alarm,
-                        style = style
-                    )
-                }
-            }
-        }
-
+    Column(
+        modifier = GlanceModifier.padding(vertical = 5.dp)
+    ) {
         Row(
             modifier = GlanceModifier
                 .fillMaxWidth()
@@ -98,7 +62,7 @@ fun DrawCalendar(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Draw each day
-            val dayOfWeekToday = date.dayOfWeek
+            val dayOfWeekToday by remember() { mutableStateOf(date.dayOfWeek) }
             val modifier = GlanceModifier.cornerRadius(10.dp).padding(vertical = 5.dp).defaultWeight()
 
             val week = Array(7) { date }
@@ -110,13 +74,14 @@ fun DrawCalendar(
             week.forEach { day ->
                 // style current day
                 val (modifier, style) = if (day.dayOfWeek == dayOfWeekToday) {
-                    modifier.background(GlanceTheme.colors.secondary) to
-                            style.copy(color = GlanceTheme.colors.onSecondary)
+                    modifier.background(GlanceTheme.colors.secondary) to style
                     // style days in next week
                 } else if (day.dayOfWeek < dayOfWeekToday) {
                     modifier to style.copy(color = ColorProvider(style.color.getColor(context).copy(alpha = 0.5f)))
                     // default style
-                } else modifier to style
+                } else {
+                    modifier to style
+                }
 
                 // Click action
                 val builder = CalendarContract.CONTENT_URI.buildUpon().appendPath("time")
@@ -131,18 +96,13 @@ fun DrawCalendar(
                     Text(
                         modifier = GlanceModifier,
                         text = day.dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, Locale.getDefault()).substring(0, 2),
-                        style = style.copy(
-                            fontSize = style.fontSize?.times(0.7),
-                        ),
+                        style = style.regularType,
                         maxLines = 1,
                     )
                     Text(
                         modifier = GlanceModifier.padding(vertical = (-5).dp),
                         text = "${day.dayOfMonth}",
-                        style = style.copy(
-                            fontSize = style.fontSize?.times(1.5),
-                            fontWeight = FontWeight.Bold
-                        ),
+                        style = style.copy(fontWeight = FontWeight.Bold).largeType,
                     )
                     Row(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -150,23 +110,13 @@ fun DrawCalendar(
                     ) {
                         Text(
                             text = "",
-                            style = style.copy(
-                                fontSize = style.fontSize?.times(0.4),
-                            ),
+                            style = style.extraSmallType,
                         )
-                        events?.forEach { e ->
+                        events.forEach { e ->
                             if (isOnDay(day, e)) {
-                                val color = if (e.color != null) {
-                                    ColorProvider(Color(e.color))
-                                } else {
-                                    style.color
-                                }
                                 Text(
                                     text = "●",
-                                    style = style.copy(
-                                        color = color,
-                                        fontSize = style.fontSize?.times(0.4),
-                                    ),
+                                    style = style.copy(color = ColorProvider(Color(e.color))).extraSmallType,
                                 )
                             }
                         }
@@ -174,53 +124,44 @@ fun DrawCalendar(
                 }
             }
         }
+        LazyColumn {
+            items(events) { e ->
+                val uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, e.id)
+                val intent = Intent(Intent.ACTION_VIEW).setData(uri).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-        events?.forEach {
-            val uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, it.id)
-            val intent = Intent(Intent.ACTION_VIEW).setData(uri).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            Row(
-                modifier = GlanceModifier
-                    .padding(vertical = 3.dp)
-                    .fillMaxWidth()
-                    .clickable { context.startActivity(intent) },
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                val color = if (it.color != null) {
-                    ColorProvider(Color(it.color))
-                } else {
-                    style.color
-                }
                 Row(
-                    modifier = GlanceModifier.defaultWeight(),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = GlanceModifier
+                        .padding(vertical = 3.dp)
+                        .fillMaxWidth()
+                        .clickable { context.startActivity(intent) },
+                    verticalAlignment = Alignment.Bottom,
                 ) {
-                    Spacer(
-                        modifier = GlanceModifier
-                            .height(style.fontSize!!.value.dp)
-                            .width(5.dp)
-                            .cornerRadius(3.dp)
-                            .background(color)
-                            .padding(all = 10.dp),
-                    )
-                    Text(
-                        text = it.title,
-                        modifier = GlanceModifier.padding(start = 10.dp),
-                        maxLines = 1,
-                        style = style.copy(
-                            textAlign = TextAlign.Start
+                    Row(
+                        modifier = GlanceModifier.defaultWeight(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(
+                            modifier = GlanceModifier
+                                .height(style.regular.dp)
+                                .width(5.dp)
+                                .cornerRadius(3.dp)
+                                .background(Color(e.color))
+                                .padding(all = 10.dp),
                         )
+                        Text(
+                            text = e.title,
+                            modifier = GlanceModifier.padding(start = 10.dp),
+                            maxLines = 1,
+                            style = style.copy(textAlign = TextAlign.Start).regularType
+                        )
+                    }
+                    Text(
+                        text = dateString(e),
+                        modifier = GlanceModifier,
+                        maxLines = 1,
+                        style = style.copy(textAlign = TextAlign.End).regularType
                     )
                 }
-                Text(
-                    text = dateString(it),
-                    modifier = GlanceModifier,
-                    maxLines = 1,
-                    style = style.copy(
-                        fontSize = style.fontSize?.times(0.7),
-                        textAlign = TextAlign.End,
-                    )
-                )
             }
         }
     }

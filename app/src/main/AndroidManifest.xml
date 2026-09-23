@@ -3,10 +3,19 @@
 
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+
+    <queries>
+        <package android:name="cz.ackee.ventusky" />
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -17,7 +26,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
         <receiver
-            android:name=".SpiffyWidgetReceiver"
+            android:name=".widget.SpiffyWidgetReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -26,12 +35,21 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.app.action.NEXT_ALARM_CLOCK_CHANGED" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/my_app_widget_info" />
         </receiver>
+        <activity
+            android:name=".configuration.SpiffyConfigurationActivity"
+            android:exported="false"
+            android:label="@string/title_activity_spiffy_configuration"
+            android:theme="@style/Theme.SpiffyWidget"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
     </application>
-    <queries>
-        <package android:name="cz.ackee.ventusky" />
-    </queries>
+
 </manifest>
