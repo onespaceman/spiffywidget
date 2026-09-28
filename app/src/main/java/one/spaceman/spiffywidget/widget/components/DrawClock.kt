@@ -1,6 +1,5 @@
 package one.spaceman.spiffywidget.widget.components
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.text.Spannable
 import android.text.SpannableString
@@ -14,6 +13,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.appwidget.AndroidRemoteViews
@@ -24,35 +24,46 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.wrapContentSize
 import androidx.glance.text.Text
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import one.spaceman.spiffywidget.R
-import one.spaceman.spiffywidget.ui.theme.GlanceTypography
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import one.spaceman.spiffywidget.ui.theme.typography
+import kotlin.time.Clock
 
 // If in a different timezone, show a clock with both current and home times
-@SuppressLint("RestrictedApi")
 @Composable
 fun DrawClock(
     context: Context,
-    style: GlanceTypography,
     homeTimeZone: String?
 ) {
     val packageName = context.packageName
+    val currentTimeZone = TimeZone.currentSystemDefault()
+    val now = Clock.System.now().toLocalDateTime(currentTimeZone)
 
     Row(
-        modifier = GlanceModifier.fillMaxWidth()
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .padding(top = 5.dp)
     ) {
         Row {
             Text(
                 modifier = GlanceModifier.defaultWeight(),
-                text = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMMM d")).uppercase(),
-                style = style.largeType,
+                text = now.format(LocalDateTime.Format {
+                    monthName(MonthNames.ENGLISH_FULL)
+                    char(' ')
+                    day(Padding.SPACE)
+                    char(' ')
+                }).uppercase(),
+                style = GlanceTheme.typography.large,
             )
         }
         if (!homeTimeZone.isNullOrEmpty()) {
-            val homeTimeZone = ZoneId.of(homeTimeZone)
-            val currentTimeZone = ZoneId.systemDefault()
+            val homeTimeZone = TimeZone.of(homeTimeZone)
             if (homeTimeZone != currentTimeZone) {
                 val homeRemoteView = RemoteViews(packageName, R.layout.clock_component)
                 val currentRemoteView = RemoteViews(packageName, R.layout.clock_component)
@@ -70,8 +81,8 @@ fun DrawClock(
                         content = {
                             formatClock(
                                 currentRemoteView,
-                                style.large,
-                                style.color.getColor(context).toArgb(),
+                                GlanceTheme.typography.large.fontSize!!.value,
+                                GlanceTheme.typography.defaultColor.getColor(context).toArgb(),
                                 currentTimeZone.id
                             )
                         }
@@ -81,10 +92,11 @@ fun DrawClock(
                         horizontalAlignment = Alignment.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val style = GlanceTheme.typography.regular
                         Image(
                             provider = ImageProvider(R.drawable.home_24px),
                             contentDescription = "Home Icon",
-                            modifier = GlanceModifier.size(style.regular.dp),
+                            modifier = GlanceModifier.size(style.fontSize!!.value.dp).padding(top = 1.dp),
                             colorFilter = ColorFilter.tint(style.color)
                         )
                         AndroidRemoteViews(
@@ -94,7 +106,7 @@ fun DrawClock(
                             content = {
                                 formatClock(
                                     homeRemoteView,
-                                    style.regular,
+                                    style.fontSize!!.value,
                                     style.color.getColor(context).toArgb(),
                                     homeTimeZone.id
                                 )

@@ -11,14 +11,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,6 +31,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -48,7 +54,11 @@ import androidx.glance.appwidget.state.updateAppWidgetState
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
 import one.spaceman.spiffywidget.R
 import one.spaceman.spiffywidget.configuration.components.DialogState
 import one.spaceman.spiffywidget.configuration.components.NewCard
@@ -58,9 +68,8 @@ import one.spaceman.spiffywidget.configuration.components.PermissionChip
 import one.spaceman.spiffywidget.state.Configuration
 import one.spaceman.spiffywidget.state.SpiffyWidgetStateDefinition
 import one.spaceman.spiffywidget.ui.theme.SpiffyWidgetTheme
+import one.spaceman.spiffywidget.widget.SpiffyWidgetReceiver
 import one.spaceman.spiffywidget.worker.WidgetWorkManager
-import java.time.ZoneId
-import java.util.SortedMap
 
 class SpiffyConfigurationActivity : ComponentActivity() {
     @Stable
@@ -70,15 +79,32 @@ class SpiffyConfigurationActivity : ComponentActivity() {
         data class Error(val message: String) : ScreenState
     }
 
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
     class State(settings: Configuration) {
         var settings by mutableStateOf(settings)
             private set
-        fun setHomeTimeZone(timeZone: String) { settings = settings.copy(homeTimeZone = timeZone)}
-        fun setWeatherApp(weatherApp: String) { settings = settings.copy(weatherApp = weatherApp)}
+
+        fun setHomeTimeZone(timeZone: String) {
+            settings = settings.copy(homeTimeZone = timeZone)
+        }
+
+        fun setWeatherApp(weatherApp: String) {
+            settings = settings.copy(weatherApp = weatherApp)
+        }
+
+        fun setInvertColors(value: Boolean) {
+            settings = settings.copy(invertColors = value)
+        }
 
         val dialogs = mutableStateListOf<DialogState>()
-        fun queueDialog(dialog: DialogState) { dialogs.add(dialog) }
-        fun removeDialog() { dialogs.remove(dialogs.first()) }
+        fun queueDialog(dialog: DialogState) {
+            dialogs.add(dialog)
+        }
+
+        fun removeDialog() {
+            dialogs.remove(dialogs.first())
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
@@ -96,6 +122,10 @@ class SpiffyConfigurationActivity : ComponentActivity() {
         val glanceAppWidgetManager = GlanceAppWidgetManager(this)
         val glanceId = glanceAppWidgetManager.getGlanceIdBy(appWidgetId)
         val context = this
+        // Update widget previews
+        applicationScope.launch {
+            glanceAppWidgetManager.setWidgetPreviews(SpiffyWidgetReceiver::class)
+        }
 
         enableEdgeToEdge()
         setContent {
@@ -148,7 +178,11 @@ class SpiffyConfigurationActivity : ComponentActivity() {
                         )
                     }
                 ) { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding)) {
+                    Column(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .verticalScroll(rememberScrollState())
+                    ) {
                         when (val s = screenState) {
                             is ScreenState.Loading -> LoadingScreen()
                             is ScreenState.Success -> Content(context, s.state)
@@ -164,7 +198,9 @@ class SpiffyConfigurationActivity : ComponentActivity() {
 @Composable
 fun LoadingScreen() {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 25.dp),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
@@ -199,7 +235,8 @@ fun Content(context: Context, state: SpiffyConfigurationActivity.State) {
         Spacer(Modifier.height(10.dp))
         FlowRow {
             if (!locationPermissionState.status.isGranted ||
-                (locationPermissionState.status.isGranted && bgLocationPermissionState.status.isGranted)) {
+                (locationPermissionState.status.isGranted && bgLocationPermissionState.status.isGranted)
+            ) {
                 PermissionChip("Location", locationPermissionState, state)
             } else {
                 PermissionChip("Background Location", bgLocationPermissionState, state)
@@ -211,7 +248,7 @@ fun Content(context: Context, state: SpiffyConfigurationActivity.State) {
 
     // Timezone
     NewCard {
-        val zones = rememberSaveable { ZoneId.getAvailableZoneIds().toSortedSet().associateWith { it } }
+        val zones = rememberSaveable { TimeZone.availableZoneIds.toSortedSet() }
 
         Text(
             text = "Set Home Timezone",
@@ -232,7 +269,7 @@ fun Content(context: Context, state: SpiffyConfigurationActivity.State) {
 
     // Weather app
     NewCard {
-        val apps = remember { getAppList(context.packageManager) }
+        val apps = getAppList(context.packageManager)
 
         Text(
             text = "Set Weather App",
@@ -243,26 +280,52 @@ fun Content(context: Context, state: SpiffyConfigurationActivity.State) {
             text = "Which app to launch when clicking on the weather",
         )
         NewDropdown(
-            state.settings.weatherApp,
-            apps
+            apps.filterValues { it == state.settings.weatherApp }.keys.firstOrNull(),
+            apps.keys.toSortedSet()
         ) { selected ->
-            val selectedValue = apps.entries.firstOrNull { it.value == selected }?.key
-            if (!selectedValue.isNullOrEmpty()) {
-                state.setWeatherApp(selectedValue)
+            val packageName = apps[selected]
+            if (!packageName.isNullOrEmpty()) {
+                state.setWeatherApp(packageName)
             }
+        }
+    }
+
+    NewCard {
+        Text(
+            text = "Invert Colors",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Invert text colors in the widget",
+            )
+
+            var checked by remember { mutableStateOf(state.settings.invertColors) }
+            Switch(
+                checked = checked,
+                onCheckedChange = {
+                    checked = !checked
+                    state.setInvertColors(checked)
+                }
+            )
+
         }
     }
 }
 
 @SuppressLint("QueryPermissionsNeeded")
-fun getAppList(packageManager: PackageManager): SortedMap<String, String> {
+fun getAppList(packageManager: PackageManager): Map<String, String> {
     // Retrieve all installed applications
     val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
 
     val appList = installedApps
         .filter { it.flags and ApplicationInfo.FLAG_SYSTEM != 1 || it.packageName.contains("weather") }
-        .associate { it.packageName to it.loadLabel(packageManager).toString() }
-        .toSortedMap()
+        .associate { it.loadLabel(packageManager).toString() to it.packageName }
 
     return appList
 }

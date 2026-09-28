@@ -1,12 +1,10 @@
 package one.spaceman.spiffywidget.data.weather
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
 import android.util.Log
-import androidx.core.app.ActivityCompat
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -17,21 +15,26 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
-import one.spaceman.spiffywidget.data.SystemInfo
 import one.spaceman.spiffywidget.state.Weather
-import one.spaceman.spiffywidget.ui.theme.formatTime
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 
 object WeatherAdapter {
 
     private const val BASE_URL = "https://api.open-meteo.com/v1/forecast"
 
-    private val httpClient = HttpClient {
+    private val httpClient = HttpClient(OkHttp) {
+        install(HttpRequestRetry) {
+            retryOnServerErrors(maxRetries = 3)
+            exponentialDelay()
+        }
         install(Logging) {
             logger = Logger.SIMPLE
             level = LogLevel.ALL
@@ -48,7 +51,7 @@ object WeatherAdapter {
         latitude: Double, longitude: Double, timeZone: String
     ): OpenMeteoResponse {
         return httpClient.get(urlString = BASE_URL) {
-            header(HttpHeaders.UserAgent, "Spiffy Widget, platform: Android")
+            header(HttpHeaders.UserAgent, "Spiffy Widgett, platform: Android")
             parameter("latitude", latitude)
             parameter("longitude", longitude)
             parameter("timezone", timeZone)
@@ -64,43 +67,35 @@ object WeatherAdapter {
         }.body()
     }
 
-    suspend fun getFormatedWeather(
-        context: Context, info: SystemInfo, latitude: Double, longitude: Double
-    ): Weather? {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.INTERNET,
-            ) == PackageManager.PERMISSION_DENIED
-        ) {
-            return null
-        }
-
+    suspend fun getFormatedWeather(latitude: Double, longitude: Double): Weather? {
         try {
-            val response = getWeather(latitude, longitude, info.timeZone.id)
+            val timezone = TimeZone.currentSystemDefault()
+            val now = Clock.System.now()
+            val response = getWeather(latitude, longitude, timezone.id)
 
-            val timezone = info.timeZone.toZoneId()
+            val sunrise = Instant.fromEpochMilliseconds(response.daily.sunriseEpochSeconds.first())
+            val sunset = Instant.fromEpochMilliseconds(response.daily.sunsetEpochSeconds.first())
 
-            val sunset = Instant.ofEpochSecond(response.daily.sunsetEpochSeconds.first())
-            val sunrise = Instant.ofEpochSecond(response.daily.sunriseEpochSeconds.first())
-
-            val extra = if (info.now.until(sunrise, ChronoUnit.MINUTES) in -10..10800) {
-                "Sunrise at ${
-                    formatTime(
-                        LocalDateTime.ofInstant(sunrise, timezone)
-                            .format(DateTimeFormatter.ofPattern("h:mma"))
-                    )
-                }"
-            } else if (info.now.until(sunset, ChronoUnit.MINUTES) in -10..10800) {
-                "Sunset at ${
-                    formatTime(
-                        LocalDateTime.ofInstant(sunset, timezone)
-                            .format(DateTimeFormatter.ofPattern("h:mma"))
-                    )
-                }"
+            val extra = if (sunrise in now..now.plus(3.hours)) {
+                sunrise.toLocalDateTime(timezone).format(LocalDateTime.Format {
+                    chars("Sunrise at ")
+                    amPmHour()
+                    chars(":")
+                    minute()
+                    amPmMarker("ᴀᴍ", "ᴘᴍ")
+                })
+            } else if (sunset in now..now.plus(3.hours)) {
+                sunset.toLocalDateTime(timezone).format(LocalDateTime.Format {
+                    chars("Sunset at ")
+                    amPmHour()
+                    chars(":")
+                    minute()
+                    amPmMarker("ᴀᴍ", "ᴘᴍ")
+                })
             } else ""
 
             return Weather(
-                lastUpdate = info.now.epochSecond,
+                lastUpdate = now,
                 temperature = response.current.temperature.roundToInt(),
                 temperatureLow = response.daily.temperatureMin.first().roundToInt(),
                 temperatureHigh = response.daily.temperatureMax.first().roundToInt(),

@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
-    kotlin("plugin.serialization") version "2.0.21"
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -15,7 +15,7 @@ android {
         minSdk = 35
         targetSdk = 37
         versionCode = 1
-        versionName = "4.2"
+        versionName = "5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -53,36 +53,63 @@ android {
 }
 
 dependencies {
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
 
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
+    // Core Android dependencies
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.material)
-    implementation(libs.androidx.glance.appwidget)
-    implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.play.services.location)
-    implementation(libs.kotlinx.coroutines.play.services)
-    implementation(libs.androidx.glance.material3)
-    implementation(libs.accompanist.permissions)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.activity.compose)
 
-    // ktor
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.ktor.client.android)
-    implementation(libs.ktor.ktor.client.logging)
-    implementation(libs.ktor.client.serialization)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    // Compose
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.graphics)
+    // Tooling
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // Instrumented tests
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Local tests: jUnit, coroutines, Android runner
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    // Instrumented tests: jUnit rules and runners
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.espresso.core)
+
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.work.runtime.ktx)
+
+    // Accompanist
+    implementation(libs.accompanist.permissions)
+
+    // Glance
+    implementation(libs.androidx.glance)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+
+    // Kotlin datetime
+    implementation(libs.kotlinx.datetime)
+
+    // KTOR
+    implementation(libs.ktor.client.core)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.serialization)
+    implementation(libs.ktor.ktor.client.logging)
+    implementation(libs.ktor.serialization.kotlinx.json)
+
+    // Location
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.play.services.location)
+
+    implementation(libs.androidx.palette)
 }

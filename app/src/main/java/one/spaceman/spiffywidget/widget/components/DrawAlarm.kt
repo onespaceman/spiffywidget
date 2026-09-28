@@ -20,16 +20,16 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.text.Text
 import one.spaceman.spiffywidget.R
-import one.spaceman.spiffywidget.ui.theme.GlanceTypography
+import one.spaceman.spiffywidget.ui.theme.typography
 
 @Composable
 fun DrawAlarm(
     context: Context,
-    style: GlanceTypography,
     alarm: String?,
 ) {
     if (!alarm.isNullOrEmpty()) {
         val intent = Intent(AlarmClock.ACTION_SHOW_ALARMS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val (textColor, bgColor) = GlanceTheme.colors.onPrimary to GlanceTheme.colors.primary
         Column(
             modifier = GlanceModifier.padding(vertical = 5.dp)
         ) {
@@ -37,7 +37,7 @@ fun DrawAlarm(
                 modifier = GlanceModifier
                     .padding(5.dp, 3.dp)
                     .cornerRadius(25.dp)
-                    .background(GlanceTheme.colors.secondary)
+                    .background(bgColor)
                     .clickable { context.startActivity(intent) },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -45,12 +45,12 @@ fun DrawAlarm(
                 Image(
                     provider = ImageProvider(R.drawable.alarm_24px),
                     contentDescription = "Alarm Icon",
-                    modifier = GlanceModifier.size(style.regular.dp),
-                    colorFilter = ColorFilter.tint(GlanceTheme.colors.onSecondary)
+                    modifier = GlanceModifier.size(GlanceTheme.typography.regular.fontSize!!.value.dp),
+                    colorFilter = ColorFilter.tint(textColor)
                 )
                 Text(
                     text = alarm,
-                    style = style.copy(color = GlanceTheme.colors.onSecondary).regularType
+                    style = GlanceTheme.typography.regular.copy(textColor)
                 )
             }
         }

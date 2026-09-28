@@ -30,7 +30,7 @@ class WidgetWorkManager(private val context: Context) {
 
         WorkManager.getInstance(context).enqueueUniqueWork(
             "spiffy_refresh_now",
-            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            ExistingWorkPolicy.KEEP,
             work
         )
     }

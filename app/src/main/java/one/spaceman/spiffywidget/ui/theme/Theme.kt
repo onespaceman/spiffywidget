@@ -37,14 +37,12 @@ fun SpiffyWidgetTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     val colorScheme = when {
-        dynamicColor -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        dynamicColor && darkTheme -> dynamicDarkColorScheme(context)
+        dynamicColor && !darkTheme -> dynamicLightColorScheme(context)
+        darkTheme -> darkColorScheme()
+        else -> lightColorScheme()
     }
 
     MaterialTheme(

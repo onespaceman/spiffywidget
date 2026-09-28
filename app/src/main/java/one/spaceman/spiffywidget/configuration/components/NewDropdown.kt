@@ -14,22 +14,22 @@ import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
 @Composable
 fun NewDropdown(
     initialValue: String?,
-    items: Map<String, String>, // (display name, value)
-    callback: (String) -> Unit,
+    items: Set<String>,
+    callback: (selected: String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val selected = rememberTextFieldState()
-    if (!initialValue.isNullOrEmpty()) {
-        selected.setTextAndPlaceCursorAtEnd(items[initialValue].orEmpty())
-    }
+    val textFieldState = rememberTextFieldState(initialValue.orEmpty())
+    var checkedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -37,7 +37,7 @@ fun NewDropdown(
     ) {
         OutlinedTextField(
             label = { Text(text = "Select Option") },
-            state = selected,
+            state = textFieldState,
             readOnly = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -52,17 +52,17 @@ fun NewDropdown(
             containerColor = MenuDefaults.groupStandardContainerColor
         ) {
             val optionCount = items.size
-            items.entries.forEachIndexed { index, item ->
-                val (value, name) = item
+            items.forEachIndexed { index, item ->
                 SelectableDropdownMenuItem(
-                    text = { Text(text = name) },
-                    selected = (selected.text == name),
+                    text = { Text(text = item) },
+                    selected = index == checkedIndex,
                     onClick = {
-                        selected.setTextAndPlaceCursorAtEnd(name)
-                        callback(value)
+                        textFieldState.setTextAndPlaceCursorAtEnd(item)
                         expanded = false
+                        callback(item)
                     },
                     shapes = MenuDefaults.itemShape(index, optionCount),
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                 )
             }
         }
