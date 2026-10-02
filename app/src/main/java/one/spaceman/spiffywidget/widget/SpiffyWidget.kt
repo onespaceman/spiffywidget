@@ -4,16 +4,12 @@ import android.app.AlarmManager
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.Image
-import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -23,22 +19,21 @@ import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
-import androidx.glance.layout.ContentScale
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
 import androidx.glance.layout.wrapContentHeight
-import androidx.glance.material3.ColorProviders
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import kotlinx.datetime.LocalDateTime
-import one.spaceman.spiffywidget.data.getWallpaper
 import one.spaceman.spiffywidget.data.weather.WeatherCodes
 import one.spaceman.spiffywidget.state.CalendarEvent
 import one.spaceman.spiffywidget.state.SpiffyWidgetState
 import one.spaceman.spiffywidget.state.SpiffyWidgetStateDefinition
 import one.spaceman.spiffywidget.state.Weather
-import one.spaceman.spiffywidget.ui.theme.hidden
+import one.spaceman.spiffywidget.ui.theme.Colors
+import one.spaceman.spiffywidget.ui.theme.SpiffyWidgetColors
+import one.spaceman.spiffywidget.ui.theme.getColors
 import one.spaceman.spiffywidget.widget.components.DrawAlarm
 import one.spaceman.spiffywidget.widget.components.DrawCalendar
 import one.spaceman.spiffywidget.widget.components.DrawClock
@@ -58,14 +53,13 @@ class SpiffyWidgetReceiver : GlanceAppWidgetReceiver() {
             AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED -> {
                 WidgetWorkManager(context).updateNow(arrayOf(WidgetWorkManager.PartialUpdate.ALARM))
             }
-
+//
 //            BluetoothDevice.ACTION_ACL_CONNECTED -> {
 //                val device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
 //                val serviceIntent = Intent(context, BluetoothService::class.java).apply {
 //                    putExtra(BluetoothDevice.EXTRA_DEVICE, device)
 //                }
-//                ServiceCompat.startForeground(context, 100,ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
-//                ContextCompat.startForegroundService(context, serviceIntent)
+//                context.startForegroundService(serviceIntent)
 //            }
         }
     }
@@ -77,7 +71,7 @@ class SpiffyWidgetReceiver : GlanceAppWidgetReceiver() {
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
-        WidgetWorkManager(context).updateNow()
+        WidgetWorkManager(context).scheduleUpdate()
     }
 
     override fun onDisabled(context: Context) {
@@ -93,11 +87,11 @@ class SpiffyWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             val state = currentState<SpiffyWidgetState>()
-            val dark = dynamicDarkColorScheme(context)
-            val light = dynamicLightColorScheme(context)
-            val colors = if (state.settings.invertColors) ColorProviders(light = dark, dark = light) else ColorProviders(light = light, dark = dark)
-            GlanceTheme(colors = colors) {
-                Content(context, state)
+            GlanceTheme {
+                val (fgColor, bgColor) = state.settings.color.getColors(GlanceTheme.colors, state.settings.invertColors)
+                SpiffyWidgetColors(fgColor, bgColor) {
+                    Content(context, state)
+                }
             }
         }
     }
@@ -127,15 +121,8 @@ class SpiffyWidget : GlanceAppWidget() {
                 location = "Easter Island"
             )
         )
-        val wallpaper = getWallpaper(context)
         provideContent {
             GlanceTheme {
-                Image(
-                    provider = ImageProvider(wallpaper),
-                    contentDescription = "Background wallpaper",
-                    contentScale = ContentScale.Crop,
-                    modifier = GlanceModifier.fillMaxSize(),
-                )
                 Content(context, state)
             }
         }
@@ -174,7 +161,7 @@ fun Content(context: Context, state: SpiffyWidgetState) {
             },
             text = " ⬤ ",
             style = TextStyle(
-                fontSize = 30.sp, color = GlanceTheme.colors.hidden
+                fontSize = 30.sp, color = Colors.hidden
             ),
         )
     }

@@ -55,7 +55,6 @@ android {
 dependencies {
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
-    androidTestImplementation(composeBom)
 
     // Core Android dependencies
     implementation(libs.androidx.core.ktx)
@@ -110,6 +109,4 @@ dependencies {
     // Location
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.play.services.location)
-
-    implementation(libs.androidx.palette)
 }

@@ -1,6 +1,7 @@
 package one.spaceman.spiffywidget.configuration.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,27 +20,23 @@ import androidx.compose.ui.unit.dp
 fun NewSwatch(
     color1: Color = Color.Red,
     color2: Color = Color.Green,
-    color3: Color = Color.Blue,
     selected: Boolean = true,
+    onClick: () -> Unit = {},
 ) {
 //    val outlineColor = LocalContentColor.current
     val outlineColor = LocalContentColor.current
     Box(modifier = Modifier
         .size(65.dp)
-        .padding(5.dp)) {
+        .padding(5.dp)
+        .clickable { onClick() }
+    ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             scale(0.8f) {
                 drawCircle(color1)
                 drawArc(
                     color = color2,
-                    startAngle = 90f,
-                    sweepAngle = 90f,
-                    useCenter = true,
-                )
-                drawArc(
-                    color = color3,
-                    startAngle = 0f,
-                    sweepAngle = 90f,
+                    startAngle = 270f,
+                    sweepAngle = 180f,
                     useCenter = true,
                 )
             }

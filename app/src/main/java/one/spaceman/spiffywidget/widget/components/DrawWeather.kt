@@ -21,10 +21,8 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import one.spaceman.spiffywidget.R
 import one.spaceman.spiffywidget.state.Weather
-import one.spaceman.spiffywidget.ui.theme.blue
-import one.spaceman.spiffywidget.ui.theme.red
+import one.spaceman.spiffywidget.ui.theme.Colors
 import one.spaceman.spiffywidget.ui.theme.typography
-import one.spaceman.spiffywidget.ui.theme.yellow
 
 @Composable
 fun DrawWeather(
@@ -70,35 +68,35 @@ fun DrawWeather(
             Image(
                 modifier = GlanceModifier.size(15.dp),
                 provider = ImageProvider(R.drawable.down_arrow),
-                colorFilter = ColorFilter.tint(GlanceTheme.colors.blue),
+                colorFilter = ColorFilter.tint(Colors.blue),
                 contentDescription = "down arrow",
                 contentScale = ContentScale.Fit
             )
             Text(
                 text = "${weather.temperatureLow}° ",
-                style = GlanceTheme.typography.regular.copy(GlanceTheme.colors.blue),
+                style = GlanceTheme.typography.regular.copy(Colors.blue),
             )
             Image(
                 modifier = GlanceModifier.size(15.dp),
                 provider = ImageProvider(R.drawable.up_arrow),
-                colorFilter = ColorFilter.tint(GlanceTheme.colors.red),
+                colorFilter = ColorFilter.tint(Colors.red),
                 contentDescription = "up arrow",
                 contentScale = ContentScale.Fit
             )
             Text(
                 text = "${weather.temperatureHigh}° ",
-                style = GlanceTheme.typography.regular.copy(GlanceTheme.colors.red),
+                style = GlanceTheme.typography.regular.copy(Colors.red),
             )
             Image(
                 modifier = GlanceModifier.size(20.dp),
                 provider = ImageProvider(R.drawable.sun),
-                colorFilter = ColorFilter.tint(GlanceTheme.colors.yellow),
+                colorFilter = ColorFilter.tint(Colors.yellow),
                 contentDescription = "sun",
                 contentScale = ContentScale.Fit
             )
             Text(
                 text = "${weather.uvIndex} ",
-                style = GlanceTheme.typography.regular.copy(GlanceTheme.colors.yellow),
+                style = GlanceTheme.typography.regular.copy(Colors.yellow),
             )
             Text(
                 text = weather.extra,

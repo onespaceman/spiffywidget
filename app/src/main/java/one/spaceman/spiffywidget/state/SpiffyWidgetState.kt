@@ -3,6 +3,7 @@ package one.spaceman.spiffywidget.state
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import one.spaceman.spiffywidget.data.weather.WeatherCodes
+import one.spaceman.spiffywidget.ui.theme.WidgetColorOptions
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -43,5 +44,6 @@ data class Weather(
 data class Configuration(
     val homeTimeZone: String? = null,
     val weatherApp: String? = null,
+    val color: WidgetColorOptions = WidgetColorOptions.PRIMARY,
     val invertColors: Boolean = false,
 )

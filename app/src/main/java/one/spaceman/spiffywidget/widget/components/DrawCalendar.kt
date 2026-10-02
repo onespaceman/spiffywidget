@@ -35,9 +35,7 @@ import kotlinx.datetime.format.DayOfWeekNames
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import one.spaceman.spiffywidget.state.CalendarEvent
-import one.spaceman.spiffywidget.ui.theme.default
-import one.spaceman.spiffywidget.ui.theme.onDefault
-import one.spaceman.spiffywidget.ui.theme.transparent
+import one.spaceman.spiffywidget.ui.theme.Colors
 import one.spaceman.spiffywidget.ui.theme.typography
 import one.spaceman.spiffywidget.ui.theme.withAlpha
 import kotlin.time.Clock
@@ -63,9 +61,9 @@ fun DrawCalendar(
                 .cornerRadius(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            val week = (0..6).map{
-                    today.plus(it, DateTimeUnit.DAY)
-                }.sortedBy { it.dayOfWeek }
+            val week = (0..6).map {
+                today.plus(it, DateTimeUnit.DAY)
+            }.sortedBy { it.localDayOfWeek }
 
             val modifier = GlanceModifier.defaultWeight().padding(vertical = 5.dp).cornerRadius(10.dp)
 
@@ -92,12 +90,13 @@ fun DrawDay(
     day: LocalDate,
 ) {
     val (bgColor, style) = when {
-        day.dayOfWeek == today.dayOfWeek -> GlanceTheme.colors.default to
-                GlanceTheme.typography.copy(color = GlanceTheme.colors.onDefault)
-        day.dayOfWeek < today.dayOfWeek -> GlanceTheme.colors.transparent to
-                GlanceTheme.typography.copy(color = GlanceTheme.colors.default.withAlpha(context, 0.6f))
-        else -> GlanceTheme.colors.transparent to
-                GlanceTheme.typography.copy(color = GlanceTheme.colors.default)
+        day.localDayOfWeek == today.localDayOfWeek -> Colors.content to
+                GlanceTheme.typography.copy(color = Colors.background)
+
+        day.localDayOfWeek < today.localDayOfWeek -> Colors.transparent to
+                GlanceTheme.typography.copy(color = Colors.content.withAlpha(context, 0.6f))
+
+        else -> Colors.transparent to GlanceTheme.typography.copy(color = Colors.content)
     }
 
     // Click action
@@ -176,9 +175,11 @@ fun DrawEvent(
         }
         Text(
             text = event.dateString,
-            modifier = GlanceModifier,
             maxLines = 1,
             style = GlanceTheme.typography.small.copy(textAlign = TextAlign.End),
         )
     }
 }
+
+val LocalDate.localDayOfWeek: Int
+    get() = (dayOfWeek.ordinal + 1) % 7

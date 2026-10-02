@@ -1,11 +1,16 @@
 package one.spaceman.spiffywidget.ui.theme
 
 import android.content.Context
+import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
 import androidx.glance.color.ColorProvider
 import androidx.glance.color.ColorProviders
 import androidx.glance.text.FontFamily
@@ -43,33 +48,103 @@ data class GlanceTypography(
 
 // Extension functions
 // Return a ColorProvider with an alpha value
-fun ColorProvider.withAlpha(context: Context, alpha: Float): ColorProvider  {
+fun ColorProvider.withAlpha(context: Context, alpha: Float): ColorProvider {
     val color = getColor(context).copy(alpha = alpha)
     return ColorProvider(color, color)
 }
 
 val GlanceTheme.typography
-    @Composable get() = GlanceTypography(color = GlanceTheme.colors.default)
+    @Composable get() = GlanceTypography(color = Colors.content)
 
-// Default colors
-val ColorProviders.default: ColorProvider
-    @Composable get() = GlanceTheme.colors.primary
+// Custom color providers
+object Colors {
+    // Default Colors
+    val content: ColorProvider
+        @Composable get() = LocalContentColor.current
+    val background: ColorProvider
+        @Composable get() = LocalBackgroundColor.current
 
-val ColorProviders.onDefault: ColorProvider
-    @Composable get() = GlanceTheme.colors.onPrimary
+    // Custom colors
+    private val useDarkColors: Boolean
+        @Composable get() = LocalUseDarkColors.current
+    val red: ColorProvider
+        @Composable get() {
+            return if (useDarkColors) {
+                ColorProvider(DarkRed, DarkRed)
+            } else {
+                ColorProvider(Red, Red)
+            }
+        }
+    val blue: ColorProvider
+        @Composable get() {
+            return if (useDarkColors) {
+                ColorProvider(DarkBlue, DarkBlue)
+            } else {
+                ColorProvider(Blue, Blue)
+            }
+        }
+    val yellow: ColorProvider
+        @Composable get() {
+            return if (useDarkColors) {
+                ColorProvider(DarkYellow, DarkYellow)
+            } else {
+                ColorProvider(Yellow, Yellow)
+            }
+        }
+    val hidden: ColorProvider = ColorProvider(Hidden, Hidden)
+    val transparent = ColorProvider(Color.Transparent, Color.Transparent)
+}
 
-// Extra colors
-val ColorProviders.blue: ColorProvider
-    @Composable get() = ColorProvider(Blue, Blue)
+@Composable
+fun SpiffyWidgetColors(
+    color: ColorProvider,
+    backgroundColor: ColorProvider,
+    content: @Composable () -> Unit,
+) {
+    val context = LocalContext.current
+    val useDarkColors = color.getColor(context).luminance() < 0.5
+    CompositionLocalProvider(
+        LocalContentColor provides color,
+        LocalBackgroundColor provides backgroundColor,
+        LocalUseDarkColors provides useDarkColors,
+        content = content
+    )
+}
 
-val ColorProviders.red: ColorProvider
-    @Composable get() = ColorProvider(Red, Red)
+val LocalContentColor = staticCompositionLocalOf { ColorProvider(Color.Black, Color.White) }
+val LocalBackgroundColor = staticCompositionLocalOf { ColorProvider(Color.White, Color.Black) }
+val LocalUseDarkColors = staticCompositionLocalOf { false }
 
-val ColorProviders.yellow: ColorProvider
-    @Composable get() = ColorProvider(Yellow, Yellow)
+enum class WidgetColorOptions {
+    PRIMARY,
+    SECONDARY,
+    TERTIARY,
+    SURFACE,
+}
 
-val ColorProviders.hidden: ColorProvider
-    @Composable get() = ColorProvider(Hidden, Hidden)
+@Composable
+internal fun WidgetColorOptions.getColors(
+    colorScheme: ColorScheme,
+    isInverted: Boolean = false
+): Pair<Color, Color> =
+    when (this) {
+        WidgetColorOptions.PRIMARY -> colorScheme.primary to colorScheme.onPrimary
+        WidgetColorOptions.SECONDARY -> colorScheme.secondary to colorScheme.onSecondary
+        WidgetColorOptions.TERTIARY -> colorScheme.tertiary to colorScheme.onTertiary
+        WidgetColorOptions.SURFACE -> colorScheme.surface to colorScheme.onSurface
+    }.also { return if (isInverted) it.invert() else it }
 
-val ColorProviders.transparent: ColorProvider
-    @Composable get() = ColorProvider(Color.Transparent, Color.Transparent)
+@Composable
+internal fun WidgetColorOptions.getColors(
+    colorScheme: ColorProviders,
+    isInverted: Boolean = false
+): Pair<ColorProvider, ColorProvider> =
+    when (this) {
+        WidgetColorOptions.PRIMARY -> colorScheme.primary to colorScheme.onPrimary
+        WidgetColorOptions.SECONDARY -> colorScheme.secondary to colorScheme.onSecondary
+        WidgetColorOptions.TERTIARY -> colorScheme.tertiary to colorScheme.onTertiary
+        WidgetColorOptions.SURFACE -> colorScheme.surface to colorScheme.onSurface
+    }.also { return if (isInverted) it.invert() else it }
+
+// invert a Pair
+fun <A, B> Pair<A, B>.invert(): Pair<B, A> = second to first

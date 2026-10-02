@@ -20,6 +20,7 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.text.Text
 import one.spaceman.spiffywidget.R
+import one.spaceman.spiffywidget.ui.theme.Colors
 import one.spaceman.spiffywidget.ui.theme.typography
 
 @Composable
@@ -29,7 +30,7 @@ fun DrawAlarm(
 ) {
     if (!alarm.isNullOrEmpty()) {
         val intent = Intent(AlarmClock.ACTION_SHOW_ALARMS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val (textColor, bgColor) = GlanceTheme.colors.onPrimary to GlanceTheme.colors.primary
+        val (textColor, bgColor) = Colors.background to Colors.content
         Column(
             modifier = GlanceModifier.padding(vertical = 5.dp)
         ) {
