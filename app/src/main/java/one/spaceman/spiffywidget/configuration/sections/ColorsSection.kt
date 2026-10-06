@@ -35,18 +35,11 @@ fun ColorsSection(
     context: Context,
     state: SpiffyConfigurationActivity.State
 ) {
-    NewCard {
-        Text(
-            text = "Invert Colors",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 10.dp)
-        )
-
+    NewCard(
+        "Colors"
+    ) {
         // Preview
-        val (contentColor, backgroundColor) = state.settings.color.getColors(
-            MaterialTheme.colorScheme,
-            state.settings.invertColors
-        )
+        val (contentColor, backgroundColor) = state.settings.color.getColors(state.settings.invertColors)
 
         Box(
             modifier = Modifier
@@ -82,7 +75,7 @@ fun ColorsSection(
             items(
                 items = WidgetColorOptions.entries,
             ) { color ->
-                val (color1, color2) = color.getColors(MaterialTheme.colorScheme, state.settings.invertColors)
+                val (color1, color2) = color.getColors(state.settings.invertColors)
                 NewSwatch(
                     color1 = color1,
                     color2 = color2,

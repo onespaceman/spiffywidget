@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 
     <queries>
         <intent>
@@ -35,8 +31,6 @@
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.app.action.NEXT_ALARM_CLOCK_CHANGED" />
-                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
-                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
             </intent-filter>
 
             <meta-data
@@ -54,19 +48,6 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
-
-<!--        <receiver-->
-<!--            android:name=".data.bluetooth.BluetoothConnectionReceiver"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />-->
-<!--                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
-        <service
-            android:name=".data.bluetooth.BluetoothService"
-            android:foregroundServiceType="connectedDevice"
-            android:exported="false" />
     </application>
 
 </manifest>

@@ -11,9 +11,7 @@ import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 class WidgetWorkManager(private val context: Context) {
-    enum class PartialUpdate {
-        ALARM, BLUETOOTH, CALENDAR, WEATHER;
-    }
+    enum class PartialUpdate { ALARM, CALENDAR, WEATHER; }
 
     fun updateNow(
         parts: Array<PartialUpdate> = PartialUpdate.entries.toTypedArray()
@@ -37,6 +35,7 @@ class WidgetWorkManager(private val context: Context) {
 
     fun scheduleUpdate() {
         val work = PeriodicWorkRequestBuilder<WidgetWorker>(15, TimeUnit.MINUTES)
+            .setInitialDelay(15, TimeUnit.MINUTES)
             .addTag(WidgetWorker.TAG)
             .build()
 

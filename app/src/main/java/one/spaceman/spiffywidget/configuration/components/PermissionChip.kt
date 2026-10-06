@@ -19,6 +19,7 @@ import one.spaceman.spiffywidget.R
 fun PermissionChip(
     name: String,
     permission: MultiplePermissionsState,
+    enabled: Boolean = true,
 ) {
     val icon = if (permission.allPermissionsGranted) {
         R.drawable.check_24px
@@ -33,6 +34,7 @@ fun PermissionChip(
         },
         label = { Text(name) },
         modifier = Modifier.padding(horizontal = 5.dp),
+        enabled = enabled,
         selected = permission.allPermissionsGranted,
         leadingIcon = {
             Icon(

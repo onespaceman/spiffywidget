@@ -39,7 +39,7 @@ fun DrawWeather(
     Column(
         modifier = GlanceModifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp)
+            .padding(bottom = 10.dp)
             .clickable { context.startActivity(intent) },
     ) {
         Row(
@@ -65,44 +65,55 @@ fun DrawWeather(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                modifier = GlanceModifier.size(15.dp),
-                provider = ImageProvider(R.drawable.down_arrow),
-                colorFilter = ColorFilter.tint(Colors.blue),
-                contentDescription = "down arrow",
-                contentScale = ContentScale.Fit
-            )
-            Text(
-                text = "${weather.temperatureLow}° ",
-                style = GlanceTheme.typography.regular.copy(Colors.blue),
-            )
-            Image(
-                modifier = GlanceModifier.size(15.dp),
-                provider = ImageProvider(R.drawable.up_arrow),
-                colorFilter = ColorFilter.tint(Colors.red),
-                contentDescription = "up arrow",
-                contentScale = ContentScale.Fit
-            )
-            Text(
-                text = "${weather.temperatureHigh}° ",
-                style = GlanceTheme.typography.regular.copy(Colors.red),
-            )
-            Image(
-                modifier = GlanceModifier.size(20.dp),
-                provider = ImageProvider(R.drawable.sun),
-                colorFilter = ColorFilter.tint(Colors.yellow),
-                contentDescription = "sun",
-                contentScale = ContentScale.Fit
-            )
-            Text(
-                text = "${weather.uvIndex} ",
-                style = GlanceTheme.typography.regular.copy(Colors.yellow),
-            )
+            DrawTemps(weather)
             Text(
                 text = weather.extra,
                 style = GlanceTheme.typography.small.copy(textAlign = TextAlign.End),
                 modifier = GlanceModifier.fillMaxWidth()
             )
         }
+    }
+}
+
+@Composable
+fun DrawTemps(
+    weather: Weather
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = GlanceModifier.size(15.dp),
+            provider = ImageProvider(R.drawable.down_arrow),
+            colorFilter = ColorFilter.tint(Colors.blue),
+            contentDescription = "down arrow",
+            contentScale = ContentScale.Fit
+        )
+        Text(
+            text = "${weather.temperatureLow}° ",
+            style = GlanceTheme.typography.regular.copy(Colors.blue),
+        )
+        Image(
+            modifier = GlanceModifier.size(15.dp),
+            provider = ImageProvider(R.drawable.up_arrow),
+            colorFilter = ColorFilter.tint(Colors.red),
+            contentDescription = "up arrow",
+            contentScale = ContentScale.Fit
+        )
+        Text(
+            text = "${weather.temperatureHigh}° ",
+            style = GlanceTheme.typography.regular.copy(Colors.red),
+        )
+        Image(
+            modifier = GlanceModifier.size(20.dp),
+            provider = ImageProvider(R.drawable.sun),
+            colorFilter = ColorFilter.tint(Colors.yellow),
+            contentDescription = "sun",
+            contentScale = ContentScale.Fit
+        )
+        Text(
+            text = "${weather.uvIndex}",
+            style = GlanceTheme.typography.regular.copy(Colors.yellow),
+        )
     }
 }

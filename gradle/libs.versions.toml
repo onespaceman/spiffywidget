@@ -14,12 +14,12 @@ coroutines = "1.11.0"
 glance = "1.3.0-alpha02"
 accompanistPermissions = "0.37.3"
 activityKtx = "1.13.0"
+workRuntimeKtxVersion = "2.12.0"
 appcompat = "1.8.0"
 kotlinxDatetime = "0.8.0"
 kotlinxSerializationJson = "1.11.0"
 ktor = "3.6.0"
 playServicesLocation = "21.4.0"
-workRuntimeKtxVersion = "2.12.0"
 
 [libraries]
 # Base
@@ -58,8 +58,8 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 # Other
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtxVersion" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version = "1.11.0" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }

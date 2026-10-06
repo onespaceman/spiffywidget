@@ -187,10 +187,8 @@ fun LoadingScreen() {
 
 @Composable
 fun Content(context: Context, state: SpiffyConfigurationActivity.State) {
-    val state by remember { mutableStateOf(state) }
-
+    ColorsSection(context, state)
     PermissionsSection()
     TimezoneSection(state)
     WeatherAppSection(context, state)
-    ColorsSection(context, state)
 }

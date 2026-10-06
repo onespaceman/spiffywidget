@@ -1,7 +1,6 @@
 package one.spaceman.spiffywidget.ui.theme
 
-import android.content.Context
-import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -12,7 +11,6 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceTheme
 import androidx.glance.LocalContext
 import androidx.glance.color.ColorProvider
-import androidx.glance.color.ColorProviders
 import androidx.glance.text.FontFamily
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
@@ -41,15 +39,18 @@ data class GlanceTypography(
         textDecoration,
         fontFamily
     )
-    val extraSmall = regular.copy(fontSize = fontSize.times(0.4))
+    val smaller = regular.copy(fontSize = fontSize.times(0.85))
     val small = regular.copy(fontSize = fontSize.times(0.75))
+    val extraSmall = regular.copy(fontSize = fontSize.times(0.55))
     val large = regular.copy(fontSize = fontSize.times(1.5))
+    val largeBold = regular.copy(fontSize = fontSize.times(1.5), fontWeight = FontWeight.Bold)
 }
 
 // Extension functions
 // Return a ColorProvider with an alpha value
-fun ColorProvider.withAlpha(context: Context, alpha: Float): ColorProvider {
-    val color = getColor(context).copy(alpha = alpha)
+@Composable
+fun ColorProvider.withAlpha(alpha: Float): ColorProvider {
+    val color = getColor(LocalContext.current).copy(alpha = alpha)
     return ColorProvider(color, color)
 }
 
@@ -91,7 +92,6 @@ object Colors {
                 ColorProvider(Yellow, Yellow)
             }
         }
-    val hidden: ColorProvider = ColorProvider(Hidden, Hidden)
     val transparent = ColorProvider(Color.Transparent, Color.Transparent)
 }
 
@@ -123,27 +123,21 @@ enum class WidgetColorOptions {
 }
 
 @Composable
-internal fun WidgetColorOptions.getColors(
-    colorScheme: ColorScheme,
-    isInverted: Boolean = false
-): Pair<Color, Color> =
+internal fun WidgetColorOptions.getColors(isInverted: Boolean = false): Pair<Color, Color> =
     when (this) {
-        WidgetColorOptions.PRIMARY -> colorScheme.primary to colorScheme.onPrimary
-        WidgetColorOptions.SECONDARY -> colorScheme.secondary to colorScheme.onSecondary
-        WidgetColorOptions.TERTIARY -> colorScheme.tertiary to colorScheme.onTertiary
-        WidgetColorOptions.SURFACE -> colorScheme.surface to colorScheme.onSurface
+        WidgetColorOptions.PRIMARY -> MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.onPrimary
+        WidgetColorOptions.SECONDARY -> MaterialTheme.colorScheme.secondary to MaterialTheme.colorScheme.onSecondary
+        WidgetColorOptions.TERTIARY -> MaterialTheme.colorScheme.tertiary to MaterialTheme.colorScheme.onTertiary
+        WidgetColorOptions.SURFACE -> MaterialTheme.colorScheme.surface to MaterialTheme.colorScheme.onSurface
     }.also { return if (isInverted) it.invert() else it }
 
 @Composable
-internal fun WidgetColorOptions.getColors(
-    colorScheme: ColorProviders,
-    isInverted: Boolean = false
-): Pair<ColorProvider, ColorProvider> =
+internal fun WidgetColorOptions.getColorProviders(isInverted: Boolean = false): Pair<ColorProvider, ColorProvider> =
     when (this) {
-        WidgetColorOptions.PRIMARY -> colorScheme.primary to colorScheme.onPrimary
-        WidgetColorOptions.SECONDARY -> colorScheme.secondary to colorScheme.onSecondary
-        WidgetColorOptions.TERTIARY -> colorScheme.tertiary to colorScheme.onTertiary
-        WidgetColorOptions.SURFACE -> colorScheme.surface to colorScheme.onSurface
+        WidgetColorOptions.PRIMARY -> GlanceTheme.colors.primary to GlanceTheme.colors.onPrimary
+        WidgetColorOptions.SECONDARY -> GlanceTheme.colors.secondary to GlanceTheme.colors.onSecondary
+        WidgetColorOptions.TERTIARY -> GlanceTheme.colors.tertiary to GlanceTheme.colors.onTertiary
+        WidgetColorOptions.SURFACE -> GlanceTheme.colors.surface to GlanceTheme.colors.onSurface
     }.also { return if (isInverted) it.invert() else it }
 
 // invert a Pair

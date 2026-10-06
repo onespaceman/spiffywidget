@@ -15,15 +15,16 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.until
 import kotlinx.serialization.json.Json
 import one.spaceman.spiffywidget.state.Weather
 import kotlin.math.roundToInt
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
 object WeatherAdapter {
@@ -73,10 +74,10 @@ object WeatherAdapter {
             val now = Clock.System.now()
             val response = getWeather(latitude, longitude, timezone.id)
 
-            val sunrise = Instant.fromEpochMilliseconds(response.daily.sunriseEpochSeconds.first())
-            val sunset = Instant.fromEpochMilliseconds(response.daily.sunsetEpochSeconds.first())
+            val sunrise = Instant.fromEpochSeconds(response.daily.sunriseEpochSeconds.first())
+            val sunset = Instant.fromEpochSeconds(response.daily.sunsetEpochSeconds.first())
 
-            val extra = if (sunrise in now..now.plus(3.hours)) {
+            val extra = if (now.until(sunrise, DateTimeUnit.HOUR) in 0..5) {
                 sunrise.toLocalDateTime(timezone).format(LocalDateTime.Format {
                     chars("Sunrise at ")
                     amPmHour()
@@ -84,7 +85,7 @@ object WeatherAdapter {
                     minute()
                     amPmMarker("ᴀᴍ", "ᴘᴍ")
                 })
-            } else if (sunset in now..now.plus(3.hours)) {
+            } else if (now.until(sunset, DateTimeUnit.HOUR) in 0..5) {
                 sunset.toLocalDateTime(timezone).format(LocalDateTime.Format {
                     chars("Sunset at ")
                     amPmHour()

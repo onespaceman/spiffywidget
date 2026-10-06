@@ -11,6 +11,3 @@ val DarkRed = Color(0xFFD20F39)
 
 val Yellow = Color(0xFFE5C890)
 val DarkYellow = Color(0xFFDF8E1D)
-
-// other
-val Hidden = Color(0x05FFFFFF)
