@@ -21,9 +21,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'platform-tools'
+        uses: android-actions/setup-android@v4.0.4
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
@@ -49,7 +47,7 @@ jobs:
       - name: Upload Release Build to Artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ env.repository_name }}
+          name: ${{ github.event.repository.name }}
           path: ${{ steps.releaseApk.outputs.apkfile }}
           overwrite: ${{ true }}
 
