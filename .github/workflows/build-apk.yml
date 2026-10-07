@@ -2,22 +2,18 @@ name: Build APK
 
 on:
   workflow_dispatch:
-  push:
+  create:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Set repository name as env variable
-        run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
-
       - uses: actions/checkout@v7
 
       - name: Setup Java JDK
         uses: actions/setup-java@v6.0.1
         with:
-          java-version: '17'
+          java-version: '25'
           distribution: 'temurin'
 
       - name: Setup Android SDK
@@ -51,8 +47,16 @@ jobs:
           path: ${{ steps.releaseApk.outputs.apkfile }}
           overwrite: ${{ true }}
 
-      - name: Create Release on Github
-        uses: softprops/action-gh-release@v3
-        if: github.ref_type == 'tag'
-        with:
-          files: ${{ steps.releaseApk.outputs.apkfile }}
+      - name: Get latest tag
+        id: getTag
+        run: echo "latestTag=$(git describe --abbrev=0 --tags)" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.getTag.outputs.latestTag }}" \
+            artifacts/*.apk \
+            --draft \
+            --generate-notes \
+            --target "$GITHUB_SHA"
