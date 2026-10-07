@@ -57,7 +57,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ steps.getTag.outputs.latestTag }}" \
+          gh release create "${{ steps.getTag.outputs.tag }}" \
             ${{ steps.releaseApk.outputs.apkfile }} \
             --draft \
             --generate-notes \
